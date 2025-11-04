@@ -12,7 +12,7 @@ interface UseAuthStore {
   setUser: (user: User) => void;
 }
 
-const UseAuthStore = create<UseAuthStore>()(
+const useAuthStore = create<UseAuthStore>()(
   persist(
     (set) => ({
       user: {
@@ -33,4 +33,4 @@ const UseAuthStore = create<UseAuthStore>()(
   )
 );
 
-export default UseAuthStore;
+export default useAuthStore;

@@ -11,8 +11,6 @@ export async function POST(request: NextRequest) {
       passwordConfirmation: password,
     });
 
-    console.log(response);
-
     return NextResponse.json(
       {
         success: true,

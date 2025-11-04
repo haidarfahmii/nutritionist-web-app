@@ -29,7 +29,7 @@ export default function NavbarProvider({
   const hideOn = ["/login", "/register"];
   return (
     <>
-      {!hideOn.includes(path || "") && <TopBanner />}
+      {/* {!hideOn.includes(path || "") && <TopBanner />} */}
       {!hideOn.includes(path || "") && <Header />}
       {children}
       {!hideOn.includes(path || "") && <Footer />}

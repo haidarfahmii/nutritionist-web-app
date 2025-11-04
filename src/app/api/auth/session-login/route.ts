@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   try {
     const objectId = req.headers.get("authorization")?.split(" ")[1];
-    console.log(objectId);
 
     if (!objectId) {
       return NextResponse.json(

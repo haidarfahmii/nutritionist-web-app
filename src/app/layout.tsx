@@ -4,7 +4,6 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import HeaderProvider from "@/providers/HeaderProvider";
 import AuthProvider from "@/providers/AuthProvider";
-import Footer from "@/components/layout/Footer";
 
 const urbanist = Urbanist({
   weight: ["400", "500", "600", "700", "800", "900"],
