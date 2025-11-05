@@ -1,45 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
-import Backendless from "@/utils/backendless";
-import { slugify } from "@/lib/blog-utils";
+import { createBlogPost } from "@/lib/blog-utils";
 
+/**
+ * POST /api/blog/create
+ * Create new blog post
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { title, imageUrl, category, description, content, authorId } = body;
 
-    // Validasi sederhana (validasi lebih baik ada di client & server)
+    // Validation
     if (!title || !category || !content || !authorId) {
       return NextResponse.json(
         {
           success: false,
-          message: "Missing required fields",
+          message:
+            "Missing required fields: title, category, content, authorId",
           data: null,
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    // Buat slug untuk SEO
-    const slug = slugify(title);
+    if (!imageUrl) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Image URL is required",
+          data: null,
+        },
+        { status: 400 }
+      );
+    }
 
-    // Siapkan data untuk disimpan
-    const postToSave = {
+    if (!description || description.length < 20 || description.length > 200) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Description must be between 20 and 200 characters",
+          data: null,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Create blog post
+    const savedPost = await createBlogPost({
       title,
-      slug,
       imageUrl,
       category,
       description,
       content,
-      // Ini adalah cara membuat relasi di Backendless
-      author: {
-        ___class: "Users",
-        objectId: authorId,
-      },
-    };
-
-    const savedPost = await Backendless.Data.of("BlogPosts").save(postToSave);
+      authorId,
+    });
 
     return NextResponse.json(
       {
@@ -47,20 +61,18 @@ export async function POST(req: NextRequest) {
         message: "Post created successfully",
         data: savedPost,
       },
-      {
-        status: 201,
-      }
+      { status: 201 }
     );
   } catch (error: any) {
+    console.error("Error in POST /api/blog/create:", error);
+
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message: error.message || "Failed to create blog post",
         data: null,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

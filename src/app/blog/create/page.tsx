@@ -4,59 +4,66 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
 
-import useAuthStore from "@/stores/useAuthStores"; // Gunakan Zustand store
+import useAuthStore from "@/stores/useAuthStores";
 import { CreateBlogForm } from "@/features/blog/components/CreateBlogForm";
 import { BlogPostPreview } from "@/features/blog/components/BlogPostPreview";
-import { FormValues } from "@/features/blog/hooks/useCreateBlogForm";
+import { FormValues } from "@/features/blog/types";
 
 export default function CreateBlogPage() {
   const router = useRouter();
-  const { user } = useAuthStore(); // Dapatkan user dari Zustand
+  const { user } = useAuthStore();
   const [isClient, setIsClient] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<FormValues | null>(null);
 
   useEffect(() => {
     setIsClient(true);
-    // Cek auth dari Zustand store
-    if (!user.objectId) {
+  }, []);
+
+  // Check auth after client mount
+  useEffect(() => {
+    if (isClient && !user.objectId) {
       toast.error("Please login to create a blog post");
       router.push("/login");
     }
-  }, [user, router]);
+  }, [isClient, user.objectId, router]);
 
   const handlePreview = (values: FormValues) => {
     setPreviewData(values);
     setShowPreview(true);
   };
 
+  const handleBackToEdit = () => {
+    setShowPreview(false);
+  };
+
+  const handleBackToBlog = () => {
+    router.push("/blog");
+  };
+
+  // Show loading state while checking auth
   if (!isClient || !user.objectId) {
     return (
       <div className="min-h-screen bg-[#F6FBE9] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#234338]" />
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#234338] mx-auto mb-2" />
+          <p className="text-[#234338]">Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    // Hapus LayoutWrapper jika sudah ada di layout global
     <div className="min-h-screen bg-[#F6FBE9] py-12 px-4">
-      <Toaster position="top-right" />
       {showPreview && previewData ? (
-        // Mode Preview
-        <BlogPostPreview
-          data={previewData}
-          onBack={() => setShowPreview(false)}
-        />
+        <BlogPostPreview data={previewData} onBack={handleBackToEdit} />
       ) : (
-        // Mode Form
         <CreateBlogForm
-          authorName={user.name} // Kirim nama author dari store
-          authorId={user.objectId} // Kirim ID author dari store
-          onPreview={handlePreview} // Kirim fungsi preview
-          onBack={() => router.push("/blog")} // Tombol kembali
+          authorName={user.name}
+          authorId={user.objectId}
+          onPreview={handlePreview}
+          onBack={handleBackToBlog}
         />
       )}
     </div>

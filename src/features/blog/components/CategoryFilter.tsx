@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { staggerContainer, fadeInUp } from "@/lib/animations";
 
 interface CategoryFilterProps {
-  categories: string[];
+  categories: readonly string[];
   activeCategory: string;
   onCategoryChange: (category: string) => void;
 }

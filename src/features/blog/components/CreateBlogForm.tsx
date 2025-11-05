@@ -17,11 +17,8 @@ import {
 } from "@/components/ui/card";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 
-import {
-  useCreateBlogConfig,
-  FormValues,
-} from "@/features/blog/hooks/useCreateBlogForm";
-import { CATEGORIES } from "@/lib/blog-utils";
+import { useCreateBlogConfig } from "@/features/blog/hooks/useCreateBlogForm";
+import { FormValues, VALID_CATEGORIES } from "@/features/blog/types";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 
 interface CreateBlogFormProps {
@@ -63,9 +60,7 @@ export function CreateBlogForm({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* 2. Spread config ke <Formik> */}
               <Formik {...formikConfig}>
-                {/* 3. Tambahkan render prop (ini yang hilang) */}
                 {({ values, isSubmitting, errors, touched }) => (
                   <Form className="space-y-6">
                     {/* Title */}
@@ -129,7 +124,7 @@ export function CreateBlogForm({
                         name="category"
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
-                        {CATEGORIES.filter((c) => c !== "All").map((cat) => (
+                        {[...VALID_CATEGORIES].map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
                           </option>

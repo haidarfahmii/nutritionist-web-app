@@ -1,22 +1,18 @@
 "use client";
 
+// src/features/blog/hooks/useCreateBlogForm.ts
+"use client";
+
 import { useRouter } from "next/navigation";
 import * as Yup from "yup";
 import { toast } from "sonner";
-import axios from "axios";
-import { CATEGORIES } from "@/lib/blog-utils";
+import { FormikConfig } from "formik";
+import { FormValues, VALID_CATEGORIES } from "@/features/blog/types";
+import { createBlogPost } from "@/lib/blog-utils";
 
-// Definisikan tipe form di sini
-export interface FormValues {
-  title: string;
-  imageUrl: string;
-  category: string;
-  description: string;
-  content: string;
-  authorName: string;
-}
-
-// Skema validasi (bisa dipindahkan ke file schemas/ terpisah)
+/**
+ * Validation schema untuk blog post form
+ */
 const blogSchema = Yup.object().shape({
   title: Yup.string()
     .min(10, "Title must be at least 10 characters")
@@ -25,7 +21,9 @@ const blogSchema = Yup.object().shape({
   imageUrl: Yup.string()
     .url("Must be a valid URL")
     .required("Image URL is required"),
-  category: Yup.string().required("Category is required"),
+  category: Yup.string()
+    .oneOf([...VALID_CATEGORIES], "Invalid category") // Convert readonly to array
+    .required("Category is required"),
   description: Yup.string()
     .min(20, "Description must be at least 20 characters")
     .max(200, "Description must be less than 200 characters")
@@ -36,48 +34,60 @@ const blogSchema = Yup.object().shape({
   authorName: Yup.string().required("Author name is required"),
 });
 
-// Ganti nama hook menjadi useCreateBlogConfig
-export const useCreateBlogConfig = (authorName: string, authorId: string) => {
-  const router = useRouter(); // Hook router tetap diperlukan
+/**
+ * Hook untuk konfigurasi Formik
+ */
+export const useCreateBlogConfig = (
+  authorName: string,
+  authorId: string
+): FormikConfig<FormValues> => {
+  const router = useRouter();
 
   const initialValues: FormValues = {
     title: "",
     imageUrl: "",
-    category: CATEGORIES[1], // Default ke kategori pertama (bukan "All")
+    category: "Weight Loss Tips", // Use string literal directly
     description: "",
     content: "",
     authorName: authorName,
   };
 
-  // Definisikan handler submit
   const handleSubmit = async (
     values: FormValues,
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
   ) => {
     try {
-      await axios.post("/api/blog/create", {
-        ...values,
+      await createBlogPost({
+        title: values.title,
+        imageUrl: values.imageUrl,
+        category: values.category,
+        description: values.description,
+        content: values.content,
         authorId: authorId,
       });
 
       toast.success("Blog post published successfully!");
-      router.push("/blog");
+
+      // Redirect dengan small delay untuk user experience
+      setTimeout(() => {
+        router.push("/blog");
+      }, 500);
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to publish blog post. Please try again."
-      );
       console.error("Error creating blog post:", error);
+      toast.error(
+        error.message || "Failed to publish blog post. Please try again."
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Kembalikan objek KONFIGURASI, bukan hasil hook useFormik
   return {
     initialValues,
     validationSchema: blogSchema,
     onSubmit: handleSubmit,
     enableReinitialize: true,
+    validateOnChange: true,
+    validateOnBlur: true,
   };
 };
