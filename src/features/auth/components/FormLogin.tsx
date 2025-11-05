@@ -1,7 +1,7 @@
 "use client";
 
 import { CiMail, CiLock } from "react-icons/ci";
-import useFormLogin from "@/features/login/hooks/useFormLogin";
+import useFormLogin from "@/features/auth/hooks/useFormLogin";
 import { useState } from "react";
 
 export default function FormLogin() {

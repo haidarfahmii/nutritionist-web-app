@@ -3,22 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { TeamMember } from "@/lib/team-data";
+import { useDebounce } from "@/hooks/useDebounce";
 
-// --- HOOK USEDEBOUNCE ---
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  return debouncedValue;
-}
-
-// Terima data awal dari Server Component
 export default function TeamPageClient({
   initialTeam,
 }: {
@@ -62,7 +48,7 @@ export default function TeamPageClient({
       try {
         const res = await fetch(`/api/team?${params.toString()}`);
         const data = await res.json();
-        setTeamMembers(data);
+        setTeamMembers(data.data);
       } catch (error) {
         console.error("Failed to fetch team:", error);
         setTeamMembers([]);

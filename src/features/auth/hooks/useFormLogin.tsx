@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormik } from "formik";
-import { loginValidationSchema } from "@/features/login/schemas/loginValidationSchema";
+import { loginValidationSchema } from "@/features/auth/schemas/loginValidationSchema";
 import { axiosInstance } from "@/utils/axios-instance";
 import { useState } from "react";
 import { useRouter } from "next/navigation";

@@ -3,7 +3,7 @@
 "use client";
 
 import { useFormik } from "formik";
-import { signupValidationSchema } from "@/features/register/schemas/registerValidationSchema";
+import { signupValidationSchema } from "@/features/auth/schemas/registerValidationSchema";
 import { axiosInstance } from "@/utils/axios-instance"; // Gunakan axiosInstance agar konsisten
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"; // Gunakan toast agar konsisten dengan login

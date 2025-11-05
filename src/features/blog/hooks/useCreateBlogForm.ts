@@ -1,14 +1,11 @@
 "use client";
 
-// src/features/blog/hooks/useCreateBlogForm.ts
-"use client";
-
 import { useRouter } from "next/navigation";
 import * as Yup from "yup";
 import { toast } from "sonner";
 import { FormikConfig } from "formik";
 import { FormValues, VALID_CATEGORIES } from "@/features/blog/types";
-import { createBlogPost } from "@/lib/blog-utils";
+import { axiosInstance } from "@/utils/axios-instance";
 
 /**
  * Validation schema untuk blog post form
@@ -57,14 +54,16 @@ export const useCreateBlogConfig = (
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
   ) => {
     try {
-      await createBlogPost({
+      const payload = {
         title: values.title,
         imageUrl: values.imageUrl,
         category: values.category,
         description: values.description,
         content: values.content,
         authorId: authorId,
-      });
+      };
+
+      await axiosInstance.post("/api/blog/create", payload);
 
       toast.success("Blog post published successfully!");
 
@@ -73,10 +72,11 @@ export const useCreateBlogConfig = (
         router.push("/blog");
       }, 500);
     } catch (error: any) {
-      console.error("Error creating blog post:", error);
-      toast.error(
-        error.message || "Failed to publish blog post. Please try again."
-      );
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to publish blog post. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }

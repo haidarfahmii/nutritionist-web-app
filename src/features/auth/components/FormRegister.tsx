@@ -1,7 +1,7 @@
 "use client";
 
 import { CiUser, CiMail, CiLock } from "react-icons/ci";
-import useFormRegister from "@/features/register/hooks/useFormRegister";
+import useFormRegister from "@/features/auth/hooks/useFormRegister";
 
 export default function FormRegister() {
   // Semua logika kini ada di dalam hook ini
