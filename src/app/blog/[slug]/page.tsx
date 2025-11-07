@@ -1,136 +1,146 @@
-import { Metadata } from "next";
-import Image from "next/image";
+import { Metadata, ResolvingMetadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, User, ArrowLeft, Clock } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import backendless from "@/utils/backendless";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Blog } from "@/lib/types";
-import { BlogActions } from "@/features/blog/components/BlogActions";
 
 export const dynamic = "force-dynamic";
 
-interface BlogDetailPageProps {
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
+
+// // Helper function to calculate reading time
+// function calculateReadingTime(content: string): number {
+//   const wordsPerMinute = 200;
+//   const words = content.trim().split(/\s+/).length;
+//   return Math.ceil(words / wordsPerMinute);
+// }
+
+// export async function generateMetadata({
+//   params,
+// }: BlogDetailPageProps): Promise<Metadata> {
+//   const { slug } = params;
+//   const blogs = await backendless.Data.of("Blogs").find({
+//     where: `slug = '${slug}'`,
+//   });
+
+//   const blog = blogs[0] as Blog | undefined;
+
+//   if (!blog) {
+//     return {
+//       title: "Blog Not Found",
+//     };
+//   }
+
+//   const publishedTime = blog.created
+//     ? new Date(blog.created).toISOString()
+//     : new Date().toISOString();
+
+//   return {
+//     title: `${blog.title} | Nutritionist Blog`,
+//     description: blog.description,
+//     keywords: [
+//       blog.category,
+//       "nutrition",
+//       "healthy eating",
+//       "diet tips",
+//       blog.author,
+//       ...blog.title.split(" ").slice(0, 5),
+//     ],
+//     authors: [
+//       {
+//         name: blog.author,
+//       },
+//     ],
+//     openGraph: {
+//       title: blog.title,
+//       description: blog.description,
+//       url: `${siteUrl}/blog/${blog.slug}`,
+//       siteName: "Nutritionist",
+//       type: "article",
+//       locale: "id_ID",
+//       publishedTime,
+//       authors: [blog.author],
+//       tags: [blog.category, "nutrition", "healthy eating"],
+//       images: [
+//         {
+//           url: blog.image,
+//           width: 1200,
+//           height: 630,
+//           alt: blog.title,
+//           type: "image/jpeg",
+//         },
+//       ],
+//     },
+//     twitter: {
+//       card: "summary_large_image",
+//       title: blog.title,
+//       description: blog.description,
+//       images: [blog.image],
+//       creator: "@nutritionist",
+//     },
+//     alternates: {
+//       canonical: `${siteUrl}/blog/${blog.slug}`,
+//     },
+//   };
+// }
+
+async function getBlog(slug: string) {
+  try {
+    const baseUrl = process.env.API_BASE_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
+      cache: "no-store",
+    });
+
+    const blog = await response.json();
+    return blog?.data;
+  } catch (error) {
+    console.error("Error fetching blog:", error);
+  }
+}
+
+interface Params {
   params: {
     slug: string;
   };
 }
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
-
-// Helper function to calculate reading time
-function calculateReadingTime(content: string): number {
-  const wordsPerMinute = 200;
-  const words = content.trim().split(/\s+/).length;
-  return Math.ceil(words / wordsPerMinute);
-}
-
-export async function generateMetadata({
-  params,
-}: BlogDetailPageProps): Promise<Metadata> {
+export const generateMetadata = async (
+  { params }: Params,
+  parent: ResolvingMetadata
+) => {
   const { slug } = await params;
-  const blogs = await backendless.Data.of("Blogs").find({
-    where: `slug = '${slug}'`,
-  });
 
-  const blog = blogs[0] as Blog | undefined;
-
-  if (!blog) {
-    return {
-      title: "Blog Not Found",
-    };
-  }
-
-  const publishedTime = blog.created
-    ? new Date(blog.created).toISOString()
-    : new Date().toISOString();
+  const blog = await getBlog(slug);
 
   return {
-    title: `${blog.title} | Nutritionist Blog`,
-    description: blog.description,
-    keywords: [
-      blog.category,
-      "nutrition",
-      "healthy eating",
-      "diet tips",
-      blog.author,
-      ...blog.title.split(" ").slice(0, 5),
-    ],
-    authors: [
-      {
-        name: blog.author,
-      },
-    ],
+    title: `${blog?.title} | Nutritionist Blog`,
+    description: blog?.description,
     openGraph: {
-      title: blog.title,
-      description: blog.description,
-      url: `${siteUrl}/blog/${blog.slug}`,
-      siteName: "Nutritionist",
-      type: "article",
-      locale: "id_ID",
-      publishedTime,
-      authors: [blog.author],
-      tags: [blog.category, "nutrition", "healthy eating"],
-      images: [
+      image: [
         {
-          url: blog.image,
+          url: blog?.image,
           width: 1200,
           height: 630,
-          alt: blog.title,
-          type: "image/jpeg",
+          alt: blog?.title,
         },
       ],
+      description: blog?.description,
     },
     twitter: {
       card: "summary_large_image",
-      title: blog.title,
-      description: blog.description,
-      images: [blog.image],
+      title: `${blog?.title} | Nutritionist Blog`,
+      description: blog?.description,
+      image: blog?.image,
+      site: siteUrl,
       creator: "@nutritionist",
     },
-    alternates: {
-      canonical: `${siteUrl}/blog/${blog.slug}`,
-    },
   };
-}
+};
 
-async function getBlog(slug: string) {
-  try {
-    const blogs = await backendless.Data.of("Blogs").find({
-      where: `slug = '${slug}'`,
-    });
-
-    const blog = blogs[0] as Blog;
-
-    if (!blog) return null;
-
-    if (
-      !blog.slug ||
-      !blog.title ||
-      !blog.content ||
-      !blog.image ||
-      !blog.author ||
-      !blog.category ||
-      !blog.description
-    ) {
-      console.error(
-        `Invalid or incomplete blog data structure for slug: ${slug}`,
-        blog
-      );
-      return null;
-    }
-
-    return blog;
-  } catch (error) {
-    console.error("Error fetching blog:", error);
-    return null;
-  }
-}
-
-export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
+export default async function page({ params }: Params) {
   const { slug } = await params;
   const blog = await getBlog(slug);
 
@@ -138,7 +148,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     notFound();
   }
 
-  const readingTime = calculateReadingTime(blog.content);
+  //   const readingTime = calculateReadingTime(blog?.content);
 
   return (
     <main role="main">
@@ -157,8 +167,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           {/* Featured Image */}
           <div className="mb-8 fade-in-delay-1">
             <img
-              src={blog.image}
-              alt={blog.title}
+              src={blog?.image}
+              alt={blog?.title}
               width={1200}
               height={630}
               className="w-full h-[400px] object-cover rounded-lg shadow-lg"
@@ -167,12 +177,12 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
           {/* Title & Meta */}
           <header className="mb-8 space-y-4 fade-in-delay-2">
-            <Badge>{blog.category}</Badge>
-            <h1 className="text-3xl lg:text-4xl font-bold">{blog.title}</h1>
+            <Badge>{blog?.category}</Badge>
+            <h1 className="text-3xl lg:text-4xl font-bold">{blog?.title}</h1>
             <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
               <span className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                By {blog.author}
+                By {blog?.author}
               </span>
               {blog.created && (
                 <span className="flex items-center gap-2">
@@ -182,7 +192,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               )}
               <span className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                {readingTime} min read
+                {/* {readingTime} min read */}
               </span>
             </div>
           </header>
