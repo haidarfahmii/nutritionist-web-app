@@ -1,34 +1,29 @@
-import FormLogin from "@/features/login/components/FormLogin";
+import { Metadata } from "next";
+import { FormLogin } from "@/features/auth/components/FormLogin";
 
-export default function Page() {
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
+
+export const metadata: Metadata = {
+  title: "Login | Access Your Nutrition Account",
+  description:
+    "Login to your Nutritionist account to access personalized meal plans, track your progress, and connect with your nutritionist.",
+  robots: {
+    index: false, // Don't index login page
+    follow: true,
+  },
+  alternates: {
+    canonical: `${siteUrl}/login`,
+  },
+};
+
+export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
-        {/* Left */}
-        <div className="lg:block bg-gray-100">
-          <img
-            src="/assets/images/Left.png"
-            alt="visual"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Right */}
-        <div className="p-8 md:p-12">
-          <h1 className="text-3xl text-slate-800 font-semibold mb-2">
-            Sign In
-          </h1>
-          <p className="text-sm text-gray-500 mb-6">
-            Don't have an account?{" "}
-            <a href="/register" className="text-emerald-500">
-              Sign Up
-            </a>
-          </p>
-
-          {/* Form component */}
-          <FormLogin />
-        </div>
-      </div>
-    </div>
+    <main
+      role="main"
+      className="min-h-screen bg-linear-to-br from-background via-background to-secondary/20"
+    >
+      <FormLogin />
+    </main>
   );
 }

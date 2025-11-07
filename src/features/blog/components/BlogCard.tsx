@@ -1,78 +1,75 @@
 "use client";
 
-import { motion } from "motion/react";
-import { ArrowRight, Calendar, User } from "lucide-react";
-import { fadeInUp, hoverScale, tapScale } from "@/lib/animations";
-import { ImageWithFallback } from "@/components/ImageWithFallback";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+// import Image from "next/image";
+import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import { BlogPost } from "@/lib/blog-utils";
+import { Calendar, User } from "lucide-react";
 
 interface BlogCardProps {
-  post: BlogPost;
-  index: number;
+  slug: string;
+  title: string;
+  image: string;
+  author: string;
+  description: string;
+  category: string;
+  created?: number;
 }
 
-export function BlogCard({ post, index }: BlogCardProps) {
+export function BlogCard({
+  slug,
+  title,
+  image,
+  author,
+  description,
+  category,
+  created,
+}: BlogCardProps) {
   return (
-    <motion.article
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-50px" }}
-      variants={fadeInUp}
-      transition={{ delay: index * 0.1 }}
-      whileHover={hoverScale}
-      whileTap={tapScale}
-      className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
-    >
-      <div className="relative h-48 md:h-56 overflow-hidden">
-        <ImageWithFallback
-          src={post.imageUrl}
-          alt={post.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
+      <div className="aspect-video relative overflow-hidden">
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
         />
       </div>
-
-      <div className="p-6">
-        <Badge className="mb-3 bg-[#CBEA7B] text-[#234338] hover:bg-[#B8D96D]">
-          {post.category}
-        </Badge>
-
-        <h3 className="mb-3 line-clamp-2 group-hover:text-[#234338]/80 transition-colors duration-200">
-          {post.title}
-        </h3>
-
-        <p className="text-muted-foreground mb-4 line-clamp-3 text-sm">
-          {post.description}
+      <CardHeader className="flex-1">
+        <div className="mb-2">
+          <Badge variant="secondary">{category}</Badge>
+        </div>
+        <CardTitle className="line-clamp-2">{title}</CardTitle>
+        <CardDescription className="flex items-center gap-4 text-sm">
+          <span className="flex items-center gap-1">
+            <User className="h-3 w-3" />
+            {author}
+          </span>
+          {created && (
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {formatDate(new Date(created))}
+            </span>
+          )}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+          {description}
         </p>
-
-        {/* Author and Date */}
-        <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-          {post.author?.name && (
-            <div className="flex items-center gap-1.5">
-              <User className="h-4 w-4" />
-              <span>{post.author?.name}</span>
-            </div>
-          )}
-          {post.created && (
-            <div className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              <span>{formatDate(post.created)}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Arrow Icon Link */}
-        <div className="flex items-center justify-end">
-          <motion.div
-            whileHover={{ x: 5 }}
-            className="flex items-center gap-2 text-[#234338] group-hover:text-[#CBEA7B] transition-colors duration-200"
-          >
-            <span className="text-sm">View Details</span>
-            <ArrowRight className="h-5 w-5" />
-          </motion.div>
-        </div>
-      </div>
-    </motion.article>
+        <Link href={`/blog/${slug}`}>
+          <Button variant="link" className="p-0 h-auto cursor-pointer">
+            Read More →
+          </Button>
+        </Link>
+      </CardContent>
+    </Card>
   );
 }

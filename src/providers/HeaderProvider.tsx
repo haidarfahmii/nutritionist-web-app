@@ -2,37 +2,20 @@
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import TopBanner from "@/components/layout/TopBanner";
 import { usePathname } from "next/navigation";
 
-// export default function NavbarProvider({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode;
-// }>) {
-//   const pathName = usePathname();
-//   console.log(pathName);
-//   return (
-//     <>
-//       {pathName === "/login" || pathName === "/register" ? null : <Nav />}
-//       {children}
-//     </>
-//   );
-// }
-
-export default function NavbarProvider({
+export default function HeaderFooterProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const path = usePathname();
-  const hideOn = ["/login", "/register"];
+  const hideNavOn = ["/login", "/register"];
   return (
     <>
-      {/* {!hideOn.includes(path || "") && <TopBanner />} */}
-      {!hideOn.includes(path || "") && <Header />}
+      {!hideNavOn.includes(path || "") && <Header />}
       {children}
-      {!hideOn.includes(path || "") && <Footer />}
+      {!hideNavOn.includes(path || "") && <Footer />}
     </>
   );
 }

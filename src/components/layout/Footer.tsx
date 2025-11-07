@@ -1,105 +1,89 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { Mail, Phone, MapPin, ArrowUp } from "lucide-react";
+import Image from "next/image";
+import { ArrowUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const footerLinks = [
+const navigation = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "Team", href: "/team" },
-  { name: "Process", href: "/process" },
-  { name: "Pricing", href: "/pricing" },
+  { name: "Services", href: "/services" },
   { name: "Blog", href: "/blog" },
-  { name: "Contact", href: "/contact" },
 ];
-
-const contactInfo = [
-  {
-    icon: Mail,
-    text: "hello@nutritionist.com",
-    href: "mailto:hello@nutritionist.com",
-  },
-  {
-    icon: Phone,
-    text: "+91 91813 23 2309",
-    href: "tel:+9191813232309",
-  },
-  {
-    icon: MapPin,
-    text: "Somewhere in the World",
-    href: "#",
-  },
-];
-
 export default function Footer() {
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
-
   return (
-    <footer className="w-full bg-sidebar text-sidebar-foreground border-t border-sidebar-border/50">
-      <div className="container mx-auto max-w-7xl px-6 py-12">
-        {/* Top Section: Logo, Links, Go to Top */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 pb-12">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/icons/logo.svg"
-              alt="Logo"
-              width={45}
-              height={45}
-              className="h-11 w-11"
-            />
-            <span className="text-2xl font-bold">Nutritionist</span>
-          </Link>
+    <footer className="border-t bg-muted/50">
+      <div className="container mx-auto px-4 py-12 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          {/* logo dan description */}
+          <div className="space-y-4">
+            <Link href="/" className="flex items-center space-x-2">
+              <Image
+                src="/icons/logo.svg"
+                alt="Logo"
+                width={45}
+                height={45}
+                className="h-9 w-9 lg:h-11 lg:w-11"
+              />
+              <span className="text-xl lg:text-2xl font-bold">
+                Nutritionist
+              </span>
+            </Link>
+            <p className="text-sm text-muted-foreground">
+              Professional nutritionist services for healthy diet planning and
+              lifestyle. Transform your health with expert guidance.
+            </p>
+          </div>
 
-          <nav
-            className="flex flex-wrap justify-center gap-x-6 gap-y-2 lg:gap-x-8"
-            aria-label="Footer navigation"
-          >
-            {footerLinks.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sidebar-foreground/80 transition-colors hover:text-primary"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+          {/* navigasi link */}
+          <div>
+            <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
+            <ul className="space-y-2">
+              {navigation.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          <button
-            onClick={scrollToTop}
-            className="group flex items-center gap-3 rounded-full bg-sidebar/50 p-2 pr-4 transition-colors hover:bg-white/10"
-            aria-label="Scroll to top"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 group-hover:bg-primary group-hover:text-primary-foreground">
-              <ArrowUp className="h-5 w-5" />
-            </span>
-            <span className="font-semibold">Go To Top</span>
-          </button>
+          {/* contact & scroll to  top */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Contact Us</h3>
+            <p className="text-sm text-muted-foreground">
+              Email: info@nutrionist.com
+              <br />
+              Phone: +62 812-3456-7890
+            </p>
+            <Button
+              onClick={scrollToTop}
+              variant="outline"
+              size="sm"
+              className="mt-4"
+            >
+              <ArrowUp className="mr-2 h-4 w-4" />
+              Scroll to Top
+            </Button>
+          </div>
         </div>
 
-        {/* Bottom Section: Contact & Copyright */}
-        <div className="mt-12 border-t border-sidebar-border/50 pt-12">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 rounded-lg bg-black/10 p-4 lg:p-6">
-            <div className="flex flex-col lg:flex-row items-center gap-4">
-              {contactInfo.map((item, index) => (
-                <a
-                  key={index}
-                  href={item.href}
-                  className="group flex items-center gap-2.5 rounded-lg border border-sidebar-border p-3 px-4 transition-colors hover:bg-white/5"
-                >
-                  <item.icon className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium">{item.text}</span>
-                </a>
-              ))}
-            </div>
-
-            <div className="text-center lg:text-right text-sm text-sidebar-foreground/70">
-              © {new Date().getFullYear()} Nutritionist. All rights reserved.
-            </div>
-          </div>
+        <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
+          <p>
+            &copy; {new Date().getFullYear()} NutriLife. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
