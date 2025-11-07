@@ -1,6 +1,6 @@
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, ArrowLeft, Clock } from "lucide-react";
+import { Calendar, User, ArrowLeft } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";

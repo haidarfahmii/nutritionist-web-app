@@ -7,7 +7,7 @@ type RouteContext = {
   }>;
 };
 
-export async function GET(request: NextRequest, context: RouteContext) {
+export async function GET(_: NextRequest, context: RouteContext) {
   try {
     const { slug } = await context.params;
 
