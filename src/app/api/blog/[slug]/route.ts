@@ -1,15 +1,15 @@
 import Backendless from "@/utils/backendless";
 import { NextResponse, NextRequest } from "next/server";
 
-interface Params {
-  params: {
+type RouteContext = {
+  params: Promise<{
     slug: string;
-  };
-}
+  }>;
+};
 
-export async function GET(_: NextRequest, { params }: Params) {
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { slug } = await params;
+    const { slug } = await context.params;
 
     const safeSlug = slug.replace(/'/g, "''");
 
@@ -42,7 +42,6 @@ export async function GET(_: NextRequest, { params }: Params) {
       }
     );
   } catch (error: any) {
-    // TAMBAHKAN INI: Log error aslinya ke konsol server Anda
     console.error("ERROR PADA API ROUTE [slug]:", error);
 
     return NextResponse.json(
@@ -51,7 +50,6 @@ export async function GET(_: NextRequest, { params }: Params) {
         message:
           error.message ||
           `failed get data detail blog, please try again later`,
-        // TAMBAHKAN INI: Kirim detail error (opsional, tapi bagus untuk debug)
         error: error,
         data: null,
       },

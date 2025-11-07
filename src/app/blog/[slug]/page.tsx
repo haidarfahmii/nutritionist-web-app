@@ -101,46 +101,50 @@ async function getBlog(slug: string) {
   }
 }
 
-interface Params {
-  params: {
+type PageProps = {
+  params: Promise<{
     slug: string;
-  };
-}
+  }>;
+};
 
-export const generateMetadata = async (
-  { params }: Params,
-  parent: ResolvingMetadata
-) => {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
-
   const blog = await getBlog(slug);
 
+  if (!blog) {
+    return {
+      title: "Blog Not Found",
+    };
+  }
+
   return {
-    title: `${blog?.title} | Nutritionist Blog`,
-    description: blog?.description,
+    title: `${blog.title} | Nutritionist Blog`,
+    description: blog.description,
     openGraph: {
-      image: [
+      images: [
         {
-          url: blog?.image,
+          url: blog.image,
           width: 1200,
           height: 630,
-          alt: blog?.title,
+          alt: blog.title,
         },
       ],
-      description: blog?.description,
+      description: blog.description,
     },
     twitter: {
       card: "summary_large_image",
-      title: `${blog?.title} | Nutritionist Blog`,
-      description: blog?.description,
-      image: blog?.image,
+      title: `${blog.title} | Nutritionist Blog`,
+      description: blog.description,
+      images: [blog.image],
       site: siteUrl,
       creator: "@nutritionist",
     },
   };
-};
+}
 
-export default async function page({ params }: Params) {
+export default async function page({ params }: PageProps) {
   const { slug } = await params;
   const blog = await getBlog(slug);
 
@@ -148,7 +152,7 @@ export default async function page({ params }: Params) {
     notFound();
   }
 
-  //   const readingTime = calculateReadingTime(blog?.content);
+  // const readingTime = calculateReadingTime(blog.content);
 
   return (
     <main role="main">
@@ -191,8 +195,8 @@ export default async function page({ params }: Params) {
                 </span>
               )}
               <span className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                {/* {readingTime} min read */}
+                {/* <Clock className="h-4 w-4" />
+                {readingTime} min read */}
               </span>
             </div>
           </header>
