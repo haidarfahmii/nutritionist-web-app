@@ -1,22 +1,13 @@
 import { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, ArrowLeft } from "lucide-react";
+import { Calendar, User, ArrowLeft, Clock } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Backendless from "@/utils/backendless";
 
 export const dynamic = "force-dynamic";
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
-
-// // Helper function to calculate reading time
-// function calculateReadingTime(content: string): number {
-//   const wordsPerMinute = 200;
-//   const words = content.trim().split(/\s+/).length;
-//   return Math.ceil(words / wordsPerMinute);
-// }
 
 // export async function generateMetadata({
 //   params,
@@ -86,18 +77,52 @@ const siteUrl =
 //     },
 //   };
 // }
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
+
+function getBaseUrl() {
+  // Di production (Vercel)
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  // Fallback ke NEXT_PUBLIC_SITE_URL
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+
+  // Fallback untuk development
+  return "http://localhost:3000";
+}
+
+// Helper function to calculate reading time
+function calculateReadingTime(content: string): number {
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  return Math.ceil(words / wordsPerMinute);
+}
 
 async function getBlog(slug: string) {
   try {
-    const baseUrl = process.env.API_BASE_URL || "http://localhost:3000";
+    // const safeSlug = slug.replace(/'/g, "''");
+    // const queryBuilder = Backendless.DataQueryBuilder.create();
+    // queryBuilder.setWhereClause(`slug='${safeSlug}'`);
+    const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
       cache: "no-store",
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const blog = await response.json();
     return blog?.data;
+    // const response = await Backendless.Data.of("Blogs").findFirst(queryBuilder);
+    // return response;
   } catch (error) {
     console.error("Error fetching blog:", error);
+    return null;
   }
 }
 
@@ -152,7 +177,7 @@ export default async function page({ params }: PageProps) {
     notFound();
   }
 
-  // const readingTime = calculateReadingTime(blog.content);
+  const readingTime = calculateReadingTime(blog.content);
 
   return (
     <main role="main">
@@ -195,8 +220,8 @@ export default async function page({ params }: PageProps) {
                 </span>
               )}
               <span className="flex items-center gap-2">
-                {/* <Clock className="h-4 w-4" />
-                {readingTime} min read */}
+                <Clock className="h-4 w-4" />
+                {readingTime} min read
               </span>
             </div>
           </header>

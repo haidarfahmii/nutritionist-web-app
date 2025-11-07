@@ -1,3 +1,5 @@
+import Backendless from "@/utils/backendless";
+
 async function getBlogs() {
   try {
     // const baseUrl = process.env.API_BASE_URL || "http://localhost:3000";
