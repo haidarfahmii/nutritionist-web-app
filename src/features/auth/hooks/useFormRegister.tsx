@@ -1,43 +1,43 @@
 "use client";
 
-"use client";
-
 import { useFormik } from "formik";
-import { signupValidationSchema } from "@/features/auth/schemas/registerValidationSchema";
-import { axiosInstance } from "@/utils/axios-instance"; // Gunakan axiosInstance agar konsisten
 import { useRouter } from "next/navigation";
-import { toast } from "sonner"; // Gunakan toast agar konsisten dengan login
+import { signupValidationSchema } from "../schemas/registerValidationSchema";
+import { toast } from "react-toastify";
+import { axiosInstance } from "@/utils/axios-instance";
 
-export default function useFormRegister() {
+export const useFormRegister = () => {
   const router = useRouter();
 
   const formik = useFormik({
-    initialValues: { name: "", email: "", password: "" },
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
     validationSchema: signupValidationSchema,
-    onSubmit: async (values, { setSubmitting, resetForm }) => {
+    onSubmit: async (values, { setSubmitting }) => {
       try {
-        const response = await axiosInstance.post("/api/auth/register", {
-          name: values.name,
-          email: values.email,
-          password: values.password,
-        });
+        const { confirmPassword, ...registerData } = values;
+        const response = await axiosInstance.post(
+          "/api/auth/register",
+          registerData
+        );
 
-        toast.success(
-          response.data.message || "Registrasi berhasil. Silakan login."
-        );
-        resetForm();
-        setTimeout(() => router.push("/login"), 800);
-      } catch (err: any) {
-        toast.error(
-          err?.response?.data?.message || "Registrasi gagal, coba lagi."
-        );
+        if (response.data.success) {
+          toast.success("Registrasi berhasil! Silakan login.");
+          router.push("/login");
+        } else {
+          toast.error(response.data.message || "Registrasi gagal");
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Terjadi kesalahan saat registrasi");
       } finally {
         setSubmitting(false);
       }
     },
   });
 
-  return {
-    formik,
-  };
-}
+  return formik;
+};

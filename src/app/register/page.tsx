@@ -1,29 +1,29 @@
-import FormRegister from "@/features/auth/components/FormRegister";
+import { Metadata } from "next";
+import { FormRegister } from "@/features/auth/components/FormRegister";
+
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
+
+export const metadata: Metadata = {
+  title: "Register | Start Your Nutrition Journey",
+  description:
+    "Create your Nutritionist account to get started with personalized meal plans, expert guidance, and professional nutrition support.",
+  robots: {
+    index: false, // Don't index register page
+    follow: true,
+  },
+  alternates: {
+    canonical: `${siteUrl}/register`,
+  },
+};
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
-        <div className="hidden md:block">
-          <img
-            src="/assets/images/Left.png"
-            alt="auth visual"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        <div className="p-8 md:p-12">
-          <h1 className="text-3xl text-slate-800 font-semibold mb-2">
-            Create Account
-          </h1>
-
-          <p className="text-sm text-gray-500 mb-6">
-            Use your email and password to sign up
-          </p>
-
-          <FormRegister />
-        </div>
-      </div>
-    </div>
+    <main
+      role="main"
+      className="min-h-screen bg-linear-to-br from-background via-background to-secondary/20"
+    >
+      <FormRegister />
+    </main>
   );
 }

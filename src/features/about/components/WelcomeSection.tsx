@@ -1,10 +1,12 @@
-export default function WelcomeSection() {
+export function AboutHero() {
   return (
     <section className="bg-[#F6FBE9] py-12 md:py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto text-center animate-fade-in-up">
           <div className="mb-6">
-            <h1 className="mb-4">Welcome to Nutritionist</h1>
+            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              Welcome to Nutritionist
+            </h1>
             <div className="w-20 h-1 bg-[#CBEA7B] mx-auto rounded-full" />
           </div>
 

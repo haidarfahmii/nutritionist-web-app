@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import HeaderProvider from "@/providers/HeaderProvider";
-import AuthProvider from "@/providers/AuthProvider";
+import { ToastContainer } from "react-toastify";
 
 const urbanist = Urbanist({
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -24,10 +23,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${urbanist.variable} antialiased`}>
-        <AuthProvider>
-          <HeaderProvider>{children}</HeaderProvider>
-          <Toaster position="top-right" />
-        </AuthProvider>
+        <HeaderProvider>{children}</HeaderProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="light"
+        />
       </body>
     </html>
   );

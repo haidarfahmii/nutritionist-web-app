@@ -1,60 +1,45 @@
-"use client";
-
 import { useFormik } from "formik";
-import { loginValidationSchema } from "@/features/auth/schemas/loginValidationSchema";
+import { useRouter, useSearchParams } from "next/navigation";
+import { loginValidationSchema } from "../schemas/loginValidationSchema";
+import useAuthStore from "@/stores/useAuthStore";
+import { toast } from "react-toastify";
 import { axiosInstance } from "@/utils/axios-instance";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import useAuthStore from "@/stores/useAuthStores";
 
-export default function useFormLogin() {
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
-  const { setUser } = useAuthStore();
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
+export const useFormLogin = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login } = useAuthStore();
+  const redirectTo = searchParams.get("redirect") || "/";
 
-  const formik = useFormik({
+  const formik = useFormik<LoginFormValues>({
     initialValues: {
       email: "",
       password: "",
     },
     validationSchema: loginValidationSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      setAuthError(null);
-      setAuthSuccess(null);
       try {
-        const response = await axiosInstance.post("/api/auth/login", {
-          email: values.email,
-          password: values.password,
-        });
-        // Jika login berhasil
+        const response = await axiosInstance.post("/api/auth/login", values);
 
-        toast.success(
-          response.data.message || "Login berhasil! Mengalihkan..."
-        );
-        setUser({
-          name: response.data.data.name,
-          email: response.data.data.email,
-          objectId: response.data.data.objectId,
-        });
-        setTimeout(() => {
-          router.push("/");
-        }, 800);
+        if (response.data.success) {
+          login(response.data.data);
+          toast.success("Login berhasil!");
+          router.push(redirectTo);
+        } else {
+          toast.error(response.data.message || "Login gagal");
+        }
       } catch (error: any) {
-        toast.error(
-          error.response.data.message ||
-            "Email atau password salah. Silakan coba lagi."
-        );
+        toast.error(error.message || "Terjadi kesalahan saat login");
       } finally {
         setSubmitting(false);
       }
     },
   });
 
-  return {
-    formik,
-    authError,
-    authSuccess,
-  };
-}
+  return formik;
+};

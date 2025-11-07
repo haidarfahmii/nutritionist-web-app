@@ -1,78 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createBlogPost } from "@/lib/blog-utils";
+import backendless from "@/utils/backendless";
+import { generateSlug } from "@/lib/utils";
 
-/**
- * POST /api/blog/create
- * Create new blog post
- */
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const { title, imageUrl, category, description, content, authorId } = body;
+    const { title, image, author, category, description, content } =
+      await request.json();
 
-    // Validation
-    if (!title || !category || !content || !authorId) {
+    if (!title || !image || !author || !category || !description || !content) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Missing required fields: title, category, content, authorId",
-          data: null,
+          message: "All fields are required",
         },
-        { status: 400 }
-      );
-    }
-
-    if (!imageUrl) {
-      return NextResponse.json(
         {
-          success: false,
-          message: "Image URL is required",
-          data: null,
-        },
-        { status: 400 }
+          status: 400,
+        }
       );
     }
 
-    if (!description || description.length < 20 || description.length > 200) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Description must be between 20 and 200 characters",
-          data: null,
-        },
-        { status: 400 }
-      );
-    }
+    // Generate slug from title
+    const slug = generateSlug(title);
 
-    // Create blog post
-    const savedPost = await createBlogPost({
+    // Create blog
+    const blog = await backendless.Data.of("Blogs").save({
+      slug,
       title,
-      imageUrl,
+      image,
+      author,
       category,
       description,
       content,
-      authorId,
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Post created successfully",
-        data: savedPost,
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({
+      success: true,
+      message: "Blog has been created successfully",
+      data: blog,
+    });
   } catch (error: any) {
-    console.error("Error in POST /api/blog/create:", error);
-
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Failed to create blog post",
+        message: error.message || "An error occurred while creating the blog",
         data: null,
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

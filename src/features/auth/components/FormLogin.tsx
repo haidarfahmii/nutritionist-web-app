@@ -1,98 +1,144 @@
 "use client";
 
-import { CiMail, CiLock } from "react-icons/ci";
-import useFormLogin from "@/features/auth/hooks/useFormLogin";
 import { useState } from "react";
+import { useFormLogin } from "../hooks/useFormLogin";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 
-export default function FormLogin() {
-  const { formik, authError, authSuccess } = useFormLogin();
-  const [showPassword, setShowPassword] = useState(false);
+export function FormLogin() {
+  const formik = useFormLogin();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-4">
-      {/* EMAIL */}
-      <div>
-        <label className="sr-only">Email</label>
-        <div className="relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-            <CiMail />
-          </span>
-          <input
-            name="email"
-            type="email"
-            placeholder="Your email address"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.email}
-            className="w-full pl-10 py-3 text-slate-800 border-b border-gray-200 focus:outline-none"
-          />
-        </div>
-        {formik.touched.email && formik.errors.email && (
-          <p className="text-sm text-red-500 mt-1">{formik.errors.email}</p>
-        )}
-      </div>
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-3 text-center pb-8">
+          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+            <LogIn className="h-8 w-8 text-primary" />
+          </div>
+          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+          <CardDescription className="text-base">
+            Masuk ke akun Anda untuk melanjutkan
+          </CardDescription>
+        </CardHeader>
 
-      {/* PASSWORD */}
-      <div>
-        <label className="sr-only">Password</label>
-        <div className="relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-            <CiLock />
-          </span>
-          <input
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.password}
-            className="w-full pl-10 py-3 text-slate-800 border-b border-gray-200 focus:outline-none"
-          />
-          <button
-            type="button"
-            aria-label="toggle password"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-3 text-gray-400"
-          >
-            {showPassword ? "🙈" : "👁"}
-          </button>
-        </div>
-        {formik.touched.password && formik.errors.password && (
-          <p className="text-sm text-red-500 mt-1">{formik.errors.password}</p>
-        )}
-      </div>
+        <CardContent className="pb-8">
+          <form onSubmit={formik.handleSubmit} className="space-y-5">
+            {/* Email Field */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email Address
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="nama@email.com"
+                  className="pl-10 h-11"
+                  {...formik.getFieldProps("email")}
+                />
+              </div>
+              {formik.touched.email && formik.errors.email && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <span className="text-xs">⚠</span> {formik.errors.email}
+                </p>
+              )}
+            </div>
 
-      {/* REMEMBER & FORGOT */}
-      <div className="flex items-center justify-between text-sm">
-        <label className="flex items-center gap-2">
-          <input type="checkbox" className="w-4 h-4" />
-          <span className="text-gray-600">Remember me</span>
-        </label>
-        <a href="#" className="text-emerald-500">
-          Forgot password?
-        </a>
-      </div>
+            {/* Password Field */}
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium">
+                Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Masukkan password"
+                  className="pl-10 pr-10 h-11"
+                  {...formik.getFieldProps("password")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {formik.touched.password && formik.errors.password && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <span className="text-xs">⚠</span> {formik.errors.password}
+                </p>
+              )}
+            </div>
 
-      {/* SUCCESS MESSAGE */}
-      {authSuccess && (
-        <div className="text-green-700 bg-green-50 p-3 rounded">
-          {authSuccess}
-        </div>
-      )}
+            {/* Forgot Password Link */}
+            <div className="flex justify-end">
+              <Link
+                href="#"
+                className="text-sm text-primary hover:underline font-medium"
+              >
+                Lupa password?
+              </Link>
+            </div>
 
-      {/* ERROR MESSAGE */}
-      {authError && (
-        <div className="text-red-700 bg-red-50 p-3 rounded">{authError}</div>
-      )}
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full h-11 font-medium text-base"
+              disabled={formik.isSubmitting}
+            >
+              {formik.isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Loading...
+                </span>
+              ) : (
+                "Login"
+              )}
+            </Button>
 
-      {/* BUTTON SUBMIT */}
-      <button
-        type="submit"
-        disabled={formik.isSubmitting}
-        className="w-full bg-black text-white disabled:opacity-50 py-3 rounded-md mt-3"
-      >
-        {formik.isSubmitting ? "Signing in..." : "Sign In"}
-      </button>
-    </form>
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Atau</span>
+              </div>
+            </div>
+
+            {/* Register Link */}
+            <p className="text-center text-sm text-muted-foreground">
+              Belum punya akun?{" "}
+              <Link
+                href="/register"
+                className="text-primary hover:underline font-medium"
+              >
+                Daftar sekarang
+              </Link>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

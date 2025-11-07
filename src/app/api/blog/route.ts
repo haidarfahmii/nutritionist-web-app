@@ -1,36 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBlogPosts } from "@/lib/blog-utils";
+import Backendless from "@/utils/backendless";
+import { NextResponse, NextRequest } from "next/server";
 
-/**
- * GET /api/blog
- * Fetch blog posts with optional filters
- * Query params: category, q (search query)
- */
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const category = searchParams.get("category") || undefined;
-    const q = searchParams.get("q") || undefined;
-
-    // Fetch posts dengan filters
-    const posts = await getBlogPosts(category, q);
-
-    return NextResponse.json(posts, {
-      status: 200,
-      headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30",
-      },
+    const response = await Backendless.Data.of("Blogs").find({
+      sortBy: ["created desc"],
     });
-  } catch (error: any) {
-    console.error("Error in GET /api/blog:", error);
 
     return NextResponse.json(
       {
-        success: false,
-        message: error.message || "Failed to fetch blog posts",
-        data: [],
+        success: true,
+        message: "Success get data blogs.",
+        data: response,
       },
-      { status: 500 }
+      {
+        status: 200,
+      }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          error.message || "failed get data blogs, please try again later",
+        data: null,
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

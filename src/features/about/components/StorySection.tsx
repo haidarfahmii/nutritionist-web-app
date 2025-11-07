@@ -1,10 +1,12 @@
-export default function StorySection() {
+export function StorySection() {
   return (
     <section className="bg-white py-12 md:py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto text-center animate-fade-in-up">
           <div className="mb-6">
-            <h2 className="mb-4">Our Story</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              Our Story
+            </h2>
             <div className="w-16 h-1 bg-[#CBEA7B] mx-auto rounded-full" />
           </div>
 
