@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { FormLogin } from "@/features/auth/components/FormLogin";
+import { Suspense } from "react";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
@@ -17,13 +18,23 @@ export const metadata: Metadata = {
   },
 };
 
+function LoginFallback() {
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center">
+      <p>Loading...</p>
+    </div>
+  );
+}
+
 export default function LoginPage() {
   return (
     <main
       role="main"
       className="min-h-screen bg-linear-to-br from-background via-background to-secondary/20"
     >
-      <FormLogin />
+      <Suspense fallback={<LoginFallback />}>
+        <FormLogin />
+      </Suspense>
     </main>
   );
 }
