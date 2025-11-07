@@ -5,7 +5,7 @@ import { formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import Backendless from "@/utils/backendless";
+// import Backendless from "@/utils/backendless";
 
 export const dynamic = "force-dynamic";
 
