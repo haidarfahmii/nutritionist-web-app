@@ -3,8 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { fadeInLeft, fadeInRight } from "@/lib/animations";
 
-interface ContentSectionProps {
+export interface ContentSectionProps {
   title: string;
   description: string;
   imageUrl: string;
@@ -35,10 +37,12 @@ export default function ContentSection({
           }`}
         >
           {/* Image */}
-          <div
-            className={`${
-              isImageLeft ? "" : "lg:col-start-2"
-            } animate-fade-in-left`}
+          <motion.div
+            className={`${isImageLeft ? "" : "lg:col-start-2"}`}
+            variants={isImageLeft ? fadeInLeft : fadeInRight}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
           >
             <div className="relative rounded-2xl overflow-hidden aspect-4/3">
               <Image
@@ -49,28 +53,30 @@ export default function ContentSection({
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* Content */}
-          <div
-            className={`${
-              isImageLeft ? "" : "lg:col-start-1 lg:row-start-1"
-            } animate-fade-in-right`}
+          <motion.div
+            className={`${isImageLeft ? "" : "lg:col-start-1 lg:row-start-1"}`}
+            variants={isImageLeft ? fadeInRight : fadeInLeft}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
           >
-            <h2 className="mb-4">{title}</h2>
+            <h2 className="mb-4 text-2xl lg:text-3xl font-semibold">{title}</h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
               {description}
             </p>
             {showButton && (
               <Link
-                href="#"
+                href="https://example.com/"
                 className="inline-flex items-center gap-2 text-[#234338] hover:text-[#CBEA7B] transition-all duration-200 group"
               >
                 <span>Read More</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

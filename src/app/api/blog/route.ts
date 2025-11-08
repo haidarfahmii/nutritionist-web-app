@@ -1,24 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBlogPosts } from "@/lib/blog-utils";
+import Backendless from "@/utils/backendless";
+import { NextResponse, NextRequest } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET(_: NextRequest) {
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const category = searchParams.get("category") || undefined;
-    const q = searchParams.get("q") || undefined;
+    const response = await Backendless.Data.of("Blogs").find({
+      sortBy: ["created desc"],
+    });
 
-    // Gunakan fungsi data fetching yang sama
-    const posts = await getBlogPosts(category, q);
-
-    return NextResponse.json(posts);
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Success get data blogs.",
+        data: response,
+      },
+      {
+        status: 200,
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message:
+          error.message || "failed get data blogs, please try again later",
         data: null,
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

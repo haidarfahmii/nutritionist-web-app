@@ -1,31 +1,62 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Menu } from "lucide-react";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import useAuthStore from "@/stores/useAuthStore";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Menu, X, LogOut, Shield } from "lucide-react";
+import { useState } from "react";
 
-const navItems = [
+const navigation = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "Team", href: "/team" },
-  { name: "Process", href: "/process" },
-  { name: "Pricing", href: "/pricing" },
+  { name: "Services", href: "/services" },
   { name: "Blog", href: "/blog" },
 ];
 
 export default function Header() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+    setMobileMenuOpen(false);
+  };
+
+  const handleLogin = () => {
+    router.push("/login");
+    setMobileMenuOpen(false);
+  };
+
+  const getUserInitials = () => {
+    if (!user?.name) return "U";
+    return user.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
-    <header className="relative z-50 w-full bg-sidebar text-sidebar-foreground font-semibold">
-      {/* 2. Main Navigation */}
-      <nav
-        className="container mx-auto max-w-7xl px-6 py-5 flex items-center justify-between"
-        aria-label="Main navigation"
-      >
-        <Link href="/" className="flex items-center gap-2">
+    <header className="sticky top-0 z-50 w-full border-b bg-sidebar text-sidebar-foreground ">
+      <nav className="container mx-auto flex items-center justify-between px-4 py-4 lg:px-8">
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2">
           <Image
             src="/icons/logo.svg"
             alt="Logo"
@@ -36,87 +67,141 @@ export default function Header() {
           <span className="text-xl lg:text-2xl font-bold">Nutritionist</span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-6">
-          {navItems.map((item) => (
+        {/* Desktop nav */}
+        <div className="hidden md:flex md:items-center md:space-x-7">
+          {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="py-2 text-sidebar-foreground/80 transition-colors hover:text-primary"
-              aria-current={item.name === "Home" ? "page" : undefined}
+              className={`transition-colors hover:text-primary ${
+                pathname === item.href
+                  ? "text-primary"
+                  : "text-sidebar-foreground/80"
+              }`}
             >
               {item.name}
             </Link>
           ))}
         </div>
 
-        <Link
-          href="/login"
-          className="hidden lg:inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-        >
-          Login
-        </Link>
+        {/* Desktop auth */}
+        <div className="hidden md:flex md:items-center md:space-x-4">
+          {isAuthenticated && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="relative h-10 w-10 rounded-full"
+                >
+                  <Avatar className="h-10 w-10 cursor-pointer">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user.name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled className="cursor-default">
+                  <Shield className="mr-2 h-4 w-4" />
+                  <span className="capitalize">
+                    Role: {user.role || "user"}
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              onClick={handleLogin}
+              variant="default"
+              className="cursor-pointer"
+            >
+              Login
+            </Button>
+          )}
+        </div>
 
+        {/* Mobile menu button */}
         <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="lg:hidden p-2"
-          aria-label="Open main menu"
-          aria-expanded={isMobileMenuOpen}
+          className="md:hidden"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          <Menu className="h-7 w-7" />
+          {mobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </nav>
 
-      {/* 3. Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-0 bg-sidebar p-6 lg:hidden"
-          >
-            <div className="flex items-center justify-between mb-10">
-              <Link href="/" className="flex items-center gap-2">
-                <Image
-                  src="/icons/logo.svg"
-                  alt="Logo"
-                  width={45}
-                  height={45}
-                  className="h-9 w-9"
-                />
-                <span className="text-xl font-bold">Nutritionist</span>
-              </Link>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2"
-                aria-label="Close main menu"
-              >
-                <X className="h-7 w-7" />
-              </button>
-            </div>
-
-            <nav className="flex flex-col gap-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block rounded-lg px-4 py-3 text-lg text-sidebar-foreground/80 transition-colors hover:bg-white/10"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t">
+          <div className="container mx-auto px-4 py-4 space-y-4">
+            {navigation.map((item) => (
               <Link
-                href="/login"
-                className="mt-6 inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                key={item.name}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block transition-colors hover:text-primary ${
+                  pathname === item.href
+                    ? "text-primary"
+                    : "text-sidebar-foreground/80"
+                }`}
               >
-                Login
+                {item.name}
               </Link>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            ))}
+            <div className="pt-4 border-t space-y-2">
+              {isAuthenticated && user ? (
+                <>
+                  <div className="space-y-1 pb-2">
+                    <p className="text-sm font-medium">{user.name}</p>
+                    <p className="text-xs text-muted">{user.email}</p>
+                    <p className="text-xs text-muted capitalize">
+                      Role: {user.role || "user"}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleLogout}
+                    variant="default"
+                    className="w-full"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={handleLogin}
+                  variant="default"
+                  className="w-full"
+                >
+                  Login
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

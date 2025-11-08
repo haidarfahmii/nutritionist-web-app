@@ -1,5 +1,3 @@
-"use client";
-
 import { Trophy, Users, Heart, Award } from "lucide-react";
 
 const achievements = [
@@ -40,7 +38,9 @@ export default function AchievementsSection() {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12 animate-fade-in-up">
-            <h2 className="mb-4">Company Achievements</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              Company Achievements
+            </h2>
             <div className="w-16 h-1 bg-[#CBEA7B] mx-auto rounded-full mb-6" />
             <p className="text-muted-foreground max-w-3xl mx-auto">
               At Nutritionist, we are proud of our accomplishments and the

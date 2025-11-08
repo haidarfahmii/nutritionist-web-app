@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import Backendless from "@/utils/backendless";
-import { slugify } from "@/lib/blog-utils";
+import { generateSlug } from "@/lib/utils";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const { title, imageUrl, category, description, content, authorId } = body;
+    const { title, image, author, category, description, content } =
+      await request.json();
 
-    // Validasi sederhana (validasi lebih baik ada di client & server)
-    if (!title || !category || !content || !authorId) {
+    if (!title || !image || !author || !category || !description || !content) {
       return NextResponse.json(
         {
           success: false,
-          message: "Missing required fields",
-          data: null,
+          message: "All fields are required",
         },
         {
           status: 400,
@@ -21,41 +19,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Buat slug untuk SEO
-    const slug = slugify(title);
+    // Generate slug from title
+    const slug = generateSlug(title);
 
-    // Siapkan data untuk disimpan
-    const postToSave = {
-      title,
+    // Create blog
+    const blog = await Backendless.Data.of("Blogs").save({
       slug,
-      imageUrl,
+      title,
+      image,
+      author,
       category,
       description,
       content,
-      // Ini adalah cara membuat relasi di Backendless
-      author: {
-        ___class: "Users",
-        objectId: authorId,
-      },
-    };
+    });
 
-    const savedPost = await Backendless.Data.of("BlogPosts").save(postToSave);
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Post created successfully",
-        data: savedPost,
-      },
-      {
-        status: 201,
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      message: "Blog has been created successfully",
+      data: blog,
+    });
   } catch (error: any) {
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message: error.message || "An error occurred while creating the blog",
         data: null,
       },
       {

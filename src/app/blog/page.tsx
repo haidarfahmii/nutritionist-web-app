@@ -1,59 +1,62 @@
-import { Suspense } from "react";
-import { getBlogPosts } from "@/lib/blog-utils";
-import { BlogPageContent } from "./BlogPageContent";
+import { Metadata } from "next";
+import BlogFetching from "@/features/blog/components/BlogFetching";
+import { BlogListClient } from "@/features/blog/components/BlogListClient";
 
-export const dynamic = "force-dynamic";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
 
-export const metadata = {
-  title: "Our Blogs | Nutritionist",
+export const metadata: Metadata = {
+  title: "Blog & Articles | Expert Nutrition Tips & Healthy Recipes",
   description:
-    "Explore our collection of insightful articles, tips, and expert advice on nutrition and wellness.",
-  keywords: "nutrition, wellness, healthy eating, weight loss, diet tips",
+    "Read expert nutrition tips, healthy recipes, and wellness advice from certified nutritionists. Learn about diet plans, weight loss, fitness, and healthy lifestyle.",
+  keywords: [
+    "nutrition blog",
+    "healthy recipes",
+    "diet tips",
+    "nutrition articles",
+    "weight loss tips",
+    "wellness blog",
+    "healthy eating guide",
+    "meal prep ideas",
+  ],
+  openGraph: {
+    title: "Blog & Articles | Expert Nutrition Tips & Healthy Recipes",
+    description:
+      "Read expert nutrition tips, healthy recipes, and wellness advice from certified nutritionists.",
+    url: `${siteUrl}/blog`,
+    siteName: "Nutritionist",
+    type: "website",
+    locale: "id_ID",
+    images: [
+      {
+        url: `${siteUrl}/og-image-blog.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Nutritionist Blog - Expert Tips & Recipes",
+        type: "image/jpeg",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog & Articles | Expert Nutrition Tips & Healthy Recipes",
+    description:
+      "Read expert nutrition tips, healthy recipes, and wellness advice from certified nutritionists.",
+    images: [`${siteUrl}/og-image-blog.jpg`],
+    creator: "@nutritionist",
+  },
+  alternates: {
+    canonical: `${siteUrl}/blog`,
+    types: {
+      "application/rss+xml": `${siteUrl}/blog/rss.xml`,
+    },
+  },
 };
 
-export default async function BlogPage({
-  searchParams,
-}: {
-  searchParams: { category?: string; q?: string };
-}) {
-  const currentCategory = searchParams.category;
-  const currentQuery = searchParams.q;
-
-  const initialPosts = await getBlogPosts(currentCategory, currentQuery);
-
-  const initialCategory = currentCategory || "All";
-  const initialSearch = currentQuery || "";
-
+export default async function BlogPage() {
   return (
-    <main className="min-h-screen bg-[#F6FBE9]">
-      <Suspense fallback={<BlogPageSkeleton />}>
-        <BlogPageContent
-          initialPosts={initialPosts}
-          initialCategory={initialCategory}
-          initialSearch={initialSearch}
-        />
-      </Suspense>
+    <main role="main">
+      <BlogFetching>{(blogs) => <BlogListClient blogs={blogs} />}</BlogFetching>
     </main>
-  );
-}
-
-function BlogPageSkeleton() {
-  return (
-    <div className="min-h-screen bg-[#F6FBE9]">
-      <div className="container mx-auto px-4 py-12">
-        <div className="h-8 w-48 bg-gray-200 rounded mx-auto mb-4 animate-pulse" />
-        <div className="h-4 w-96 bg-gray-200 rounded mx-auto mb-12 animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg p-6 h-96 animate-pulse">
-              <div className="h-48 bg-gray-200 rounded mb-4" />
-              <div className="h-4 w-24 bg-gray-200 rounded mb-2" />
-              <div className="h-6 w-full bg-gray-200 rounded mb-2" />
-              <div className="h-4 w-full bg-gray-200 rounded" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }
