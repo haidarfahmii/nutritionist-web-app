@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn } from "@/lib/animations";
 import { ArrowRight } from "lucide-react";
@@ -49,9 +50,11 @@ export default function Blog({ blogs }: { blogs: any[] }) {
                 className="block relative overflow-hidden"
               >
                 <div className="relative w-full h-60 lg:h-[280px]">
-                  <img
+                  <Image
                     src={blog.image}
                     alt={blog.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>

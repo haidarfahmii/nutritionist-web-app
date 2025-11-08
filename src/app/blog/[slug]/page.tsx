@@ -4,6 +4,7 @@ import { Calendar, User, ArrowLeft, Clock } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Backendless from "@/utils/backendless";
 import { Blog } from "@/lib/types";
@@ -133,13 +134,14 @@ export default async function page({ params }: PageProps) {
           </nav>
 
           {/* Featured Image */}
-          <div className="mb-8 fade-in-delay-1">
-            <img
+          <div className="relative mb-8 h-[400px] w-full overflow-hidden rounded-lg shadow-lg fade-in-delay-1">
+            <Image
               src={blog?.image}
               alt={blog?.title}
-              width={1200}
-              height={630}
-              className="w-full h-[400px] object-cover rounded-lg shadow-lg"
+              fill
+              priority
+              sizes="(max-width: 896px) 100vw, 896px"
+              className="object-cover"
             />
           </div>
 

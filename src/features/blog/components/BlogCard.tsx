@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import { Calendar, User } from "lucide-react";
@@ -36,9 +36,11 @@ export function BlogCard({
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
       <div className="aspect-video relative overflow-hidden">
-        <img
+        <Image
           src={image}
           alt={title}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
         />
       </div>
