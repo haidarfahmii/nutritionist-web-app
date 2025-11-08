@@ -54,17 +54,12 @@ export default function TeamGrid({ members }: TeamGridProps) {
     <section className="py-16 px-4 bg-linear-to-b from-background to-muted/20">
       {/* Hero Section */}
       <div className="flex flex-col items-center px-4 pt-8 pb-12 max-w-4xl mx-auto">
-        {/* Icon */}
         <div className="mb-6 flex items-center justify-center w-16 h-16 rounded-2xl bg-sidebar/10 backdrop-blur-sm">
           <Users className="w-8 h-8 text-sidebar" />
         </div>
-
-        {/* Heading */}
         <h1 className="mb-6 text-center text-4xl lg:text-5xl font-bold">
           Meet Our Team of Experts
         </h1>
-
-        {/* Description */}
         <p className="text-center max-w-3xl text-muted-foreground leading-relaxed">
           Our team at Nutritionist is composed of highly skilled professionals
           who are passionate about helping you achieve your health and wellness

@@ -26,6 +26,7 @@ export default function Hero() {
             height={830}
             className="w-full h-auto rounded-br-[50px] object-cover"
             priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
           />
         </motion.div>
 
