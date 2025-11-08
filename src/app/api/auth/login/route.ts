@@ -5,19 +5,19 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
-    const user = await Backendless.UserService.login(email, password, true);
-
     if (!email || !password) {
       return NextResponse.json(
         {
           success: false,
-          message: "Email dan password wajib diisi",
+          message: "email and password is required",
         },
         {
           status: 400,
         }
       );
     }
+
+    const user = await Backendless.UserService.login(email, password, true);
 
     return NextResponse.json(
       {

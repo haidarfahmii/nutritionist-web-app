@@ -72,7 +72,7 @@ export default function Hero() {
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link href="/pricing">
+            <Link href="/services">
               <Button
                 variant="outline"
                 className="border-[#234338] text-[#234338] hover:bg-[#234338] hover:text-white px-8 h-12 cursor-pointer"

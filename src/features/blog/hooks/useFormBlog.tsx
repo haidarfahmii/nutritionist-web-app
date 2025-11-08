@@ -4,8 +4,9 @@ import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { blogValidationSchema } from "../schemas/blogValidationSchema";
 import { toast } from "react-toastify";
-import { axiosInstance } from "@/utils/axios-instance";
+// import { axiosInstance } from "@/utils/axios-instance";
 import Backendless from "@/utils/backendless";
+import { generateSlug } from "@/lib/utils";
 
 interface BlogFormValues {
   title: string;
@@ -58,7 +59,11 @@ export const useFormBlog = () => {
           }
         }
 
+        // Generate slug dari title
+        const slug = generateSlug(values.title);
+
         const blogData = {
+          slug,
           title: values.title,
           image: imageUrl,
           author: values.author,
@@ -67,15 +72,24 @@ export const useFormBlog = () => {
           content: values.content,
         };
 
-        const response = await axiosInstance.post("/api/blog/create", blogData);
+        const savedBlog = await Backendless.Data.of("Blogs").save(blogData);
 
-        if (response.data.success) {
+        if (savedBlog) {
           toast.success("Blog berhasil dipublikasikan!");
-          router.push("/blog");
+
+          // delay kecil sebelum redirect untuk memastikan data tersimpan
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          // Redirect ke halaman blog detail
+          router.push(`/blog/${slug}`);
+
+          // Refresh router untuk memuat ulang data
+          router.refresh();
         } else {
-          toast.error(response.data.message || "Gagal membuat blog");
+          toast.error("Gagal membuat blog");
         }
       } catch (error: any) {
+        console.error("Error creating blog:", error);
         toast.error(error.message || "Terjadi kesalahan saat membuat blog");
       } finally {
         setSubmitting(false);

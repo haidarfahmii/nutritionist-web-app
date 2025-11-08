@@ -5,95 +5,15 @@ import { formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-// import Backendless from "@/utils/backendless";
+import Backendless from "@/utils/backendless";
+import { Blog } from "@/lib/types";
 
+// Force dynamic rendering untuk mencegah static generation issues
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-// export async function generateMetadata({
-//   params,
-// }: BlogDetailPageProps): Promise<Metadata> {
-//   const { slug } = params;
-//   const blogs = await backendless.Data.of("Blogs").find({
-//     where: `slug = '${slug}'`,
-//   });
-
-//   const blog = blogs[0] as Blog | undefined;
-
-//   if (!blog) {
-//     return {
-//       title: "Blog Not Found",
-//     };
-//   }
-
-//   const publishedTime = blog.created
-//     ? new Date(blog.created).toISOString()
-//     : new Date().toISOString();
-
-//   return {
-//     title: `${blog.title} | Nutritionist Blog`,
-//     description: blog.description,
-//     keywords: [
-//       blog.category,
-//       "nutrition",
-//       "healthy eating",
-//       "diet tips",
-//       blog.author,
-//       ...blog.title.split(" ").slice(0, 5),
-//     ],
-//     authors: [
-//       {
-//         name: blog.author,
-//       },
-//     ],
-//     openGraph: {
-//       title: blog.title,
-//       description: blog.description,
-//       url: `${siteUrl}/blog/${blog.slug}`,
-//       siteName: "Nutritionist",
-//       type: "article",
-//       locale: "id_ID",
-//       publishedTime,
-//       authors: [blog.author],
-//       tags: [blog.category, "nutrition", "healthy eating"],
-//       images: [
-//         {
-//           url: blog.image,
-//           width: 1200,
-//           height: 630,
-//           alt: blog.title,
-//           type: "image/jpeg",
-//         },
-//       ],
-//     },
-//     twitter: {
-//       card: "summary_large_image",
-//       title: blog.title,
-//       description: blog.description,
-//       images: [blog.image],
-//       creator: "@nutritionist",
-//     },
-//     alternates: {
-//       canonical: `${siteUrl}/blog/${blog.slug}`,
-//     },
-//   };
-// }
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
-
-function getBaseUrl() {
-  // Di production (Vercel)
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-
-  // Fallback ke NEXT_PUBLIC_SITE_URL
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL;
-  }
-
-  // Fallback untuk development
-  return "http://localhost:3000";
-}
 
 // Helper function to calculate reading time
 function calculateReadingTime(content: string): number {
@@ -102,24 +22,22 @@ function calculateReadingTime(content: string): number {
   return Math.ceil(words / wordsPerMinute);
 }
 
-async function getBlog(slug: string) {
+async function getBlog(slug: string): Promise<Blog | null> {
   try {
-    // const safeSlug = slug.replace(/'/g, "''");
-    // const queryBuilder = Backendless.DataQueryBuilder.create();
-    // queryBuilder.setWhereClause(`slug='${safeSlug}'`);
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
-      cache: "no-store",
-    });
+    const safeSlug = slug.replace(/'/g, "''");
+    const queryBuilder = Backendless.DataQueryBuilder.create();
+    queryBuilder.setWhereClause(`slug='${safeSlug}'`);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    const response = await Backendless.Data.of("Blogs").findFirst<Blog>(
+      queryBuilder
+    );
+
+    // Validate response has required fields
+    if (response && response.title && response.content) {
+      return response as Blog;
     }
 
-    const blog = await response.json();
-    return blog?.data;
-    // const response = await Backendless.Data.of("Blogs").findFirst(queryBuilder);
-    // return response;
+    return null;
   } catch (error) {
     console.error("Error fetching blog:", error);
     return null;
@@ -141,13 +59,32 @@ export async function generateMetadata({
   if (!blog) {
     return {
       title: "Blog Not Found",
+      description: "The blog post you're looking for doesn't exist.",
     };
   }
 
   return {
     title: `${blog.title} | Nutritionist Blog`,
     description: blog.description,
+    keywords: [
+      blog.category,
+      "nutrition",
+      "healthy eating",
+      "diet tips",
+      blog.author,
+    ],
+    authors: [
+      {
+        name: blog.author,
+      },
+    ],
     openGraph: {
+      title: blog.title,
+      description: blog.description,
+      url: `${siteUrl}/blog/${blog.slug}`,
+      siteName: "Nutritionist",
+      type: "article",
+      locale: "id_ID",
       images: [
         {
           url: blog.image,
@@ -156,7 +93,6 @@ export async function generateMetadata({
           alt: blog.title,
         },
       ],
-      description: blog.description,
     },
     twitter: {
       card: "summary_large_image",
@@ -165,6 +101,9 @@ export async function generateMetadata({
       images: [blog.image],
       site: siteUrl,
       creator: "@nutritionist",
+    },
+    alternates: {
+      canonical: `${siteUrl}/blog/${blog.slug}`,
     },
   };
 }

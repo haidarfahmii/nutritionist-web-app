@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import backendless from "@/utils/backendless";
+import Backendless from "@/utils/backendless";
 import { generateSlug } from "@/lib/utils";
 
 export async function POST(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const slug = generateSlug(title);
 
     // Create blog
-    const blog = await backendless.Data.of("Blogs").save({
+    const blog = await Backendless.Data.of("Blogs").save({
       slug,
       title,
       image,

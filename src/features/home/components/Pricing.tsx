@@ -106,7 +106,7 @@ export default function Pricing() {
         </div>
 
         <div className="text-center mt-12 fade-in-delay-2">
-          <Link href="/pricing">
+          <Link href="/services">
             <Button size="lg" variant="outline" className="cursor-pointer">
               View All Service
             </Button>

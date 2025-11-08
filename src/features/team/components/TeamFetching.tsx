@@ -1,4 +1,5 @@
 import TeamGrid from "./TeamGrid";
+import { TeamMember } from "@/lib/types";
 
 const roles = [
   "Nutritionist",
@@ -11,59 +12,73 @@ function assignRole(index: number): string {
   return roles[index % roles.length];
 }
 
-// Helper function untuk mendapatkan base URL yang benar
-function getBaseUrl() {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL;
-  }
-  return "http://localhost:3000";
+// Type for randomuser.me API response
+interface RandomUser {
+  name: {
+    first: string;
+    last: string;
+  };
+  login: {
+    uuid: string;
+  };
+  picture: {
+    large: string;
+  };
+  email: string;
 }
 
-async function getTeamMembers() {
+interface RandomUserResponse {
+  results: RandomUser[];
+}
+
+// Helper function untuk mendapatkan base URL yang benar
+// function getBaseUrl() {
+//   if (process.env.VERCEL_URL) {
+//     return `https://${process.env.VERCEL_URL}`;
+//   }
+//   if (process.env.NEXT_PUBLIC_SITE_URL) {
+//     return process.env.NEXT_PUBLIC_SITE_URL;
+//   }
+//   return "http://localhost:3000";
+// }
+
+async function getTeamMembers(): Promise<TeamMember[]> {
   try {
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/team`, {
+    const response = await fetch("https://randomuser.me/api/?results=12", {
       next: { revalidate: 3600 },
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch team members");
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    return data.data || [];
-  } catch (error) {
-    console.error("Error fetching team members:", error);
+    const data: RandomUserResponse = await response.json();
 
-    try {
-      const fallbackResponse = await fetch(
-        "https://randomuser.me/api/?results=12",
-        {
-          next: { revalidate: 3600 },
-        }
-      );
+    // Validate response
+    if (!data.results || !Array.isArray(data.results)) {
+      console.warn("⚠️ Invalid response from randomuser.me");
+      return [];
+    }
 
-      if (fallbackResponse.ok) {
-        const data = await fallbackResponse.json();
-        const teamMembers = data.results.map((user: any, index: number) => ({
+    // Transform to TeamMember type
+    const teamMembers: TeamMember[] = data.results.map(
+      (user: RandomUser, index: number) => {
+        const role = assignRole(index);
+        return {
           id: user.login.uuid,
           name: `${user.name.first} ${user.name.last}`,
-          role: assignRole(index),
+          role,
           photo: user.picture.large,
-          bio: `Expert ${assignRole(
-            index
-          ).toLowerCase()} with years of experience in helping clients achieve their health goals through personalized nutrition plans.`,
+          bio: `Expert ${role.toLowerCase()} with years of experience in helping clients achieve their health goals through personalized nutrition plans.`,
           email: user.email,
-        }));
-        return teamMembers;
+        };
       }
-    } catch (fallbackError) {
-      console.error("Fallback fetch failed:", fallbackError);
-    }
+    );
 
+    console.log(`✅ Fetched ${teamMembers.length} team members`);
+    return teamMembers;
+  } catch (error) {
+    console.error("Error fetching team members:", error);
     return [];
   }
 }
