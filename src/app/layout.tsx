@@ -2,12 +2,7 @@ import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
 import "./globals.css";
 import HeaderProvider from "@/providers/HeaderProvider";
-import dynamic from "next/dynamic";
-
-const ToastContainer = dynamic(
-  () => import("react-toastify").then((mod) => mod.ToastContainer),
-  { ssr: false }
-);
+import { ToastContainer } from "react-toastify";
 
 const urbanist = Urbanist({
   weight: ["400", "500", "600", "700", "800", "900"],
