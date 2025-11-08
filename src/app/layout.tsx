@@ -22,6 +22,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="preconnect"
+          href="https://backendlessappcontent.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preconnect"
+          href="https://randomuser.me"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={`${urbanist.variable} antialiased`}>
         <HeaderProvider>{children}</HeaderProvider>
         <ToastContainer

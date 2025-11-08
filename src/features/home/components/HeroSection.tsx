@@ -20,7 +20,7 @@ export default function Hero() {
           className="order-2 lg:order-1"
         >
           <Image
-            src="/images/hero.svg"
+            src="/images/hero.png"
             alt="Woman smiling and pointing"
             width={950}
             height={830}
@@ -90,21 +90,21 @@ export default function Hero() {
           >
             <div className="flex items-center">
               <Image
-                src="/images/avatar-1.svg"
+                src="/images/avatar-1.png"
                 alt="Customer 1"
                 width={50}
                 height={50}
                 className="relative object-cover rounded-full border-2 border-white"
               />
               <Image
-                src="/images/avatar-2.svg"
+                src="/images/avatar-2.png"
                 alt="Customer 2"
                 width={50}
                 height={50}
                 className="relative object-cover rounded-full border-2 border-white -ml-5"
               />
               <Image
-                src="/images/avatar-3.svg"
+                src="/images/avatar-3.png"
                 alt="Customer 3"
                 width={50}
                 height={50}

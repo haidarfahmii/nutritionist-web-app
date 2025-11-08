@@ -92,7 +92,7 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/pricing" className="block">
+                <Link href="https://example.com/" className="block">
                   <Button
                     className="w-full"
                     variant={plan.popular ? "default" : "outline"}
