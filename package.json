@@ -9,8 +9,10 @@
     "lint": "eslint"
   },
   "browserslist": [
-    "defaults",
-    "not IE 11"
+    "defaults and supports es6-module",
+    "maintained node versions",
+    "not IE 11",
+    "not op_mini all"
   ],
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",

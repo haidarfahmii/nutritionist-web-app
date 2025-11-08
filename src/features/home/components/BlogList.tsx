@@ -4,9 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn } from "@/lib/animations";
-import { ArrowRight } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import { Calendar, User } from "lucide-react";
+import { ArrowRight, Calendar, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function Blog({ blogs }: { blogs: any[] }) {
@@ -48,6 +47,7 @@ export default function Blog({ blogs }: { blogs: any[] }) {
               <Link
                 href={`/blog/${blog.slug}`}
                 className="block relative overflow-hidden"
+                aria-label={`Read article: ${blog.title}`}
               >
                 <div className="relative w-full h-60 lg:h-[280px]">
                   <Image
@@ -55,6 +55,8 @@ export default function Blog({ blogs }: { blogs: any[] }) {
                     alt={blog.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
+                    quality={80}
+                    loading={index < 2 ? "eager" : "lazy"}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>
@@ -88,17 +90,26 @@ export default function Blog({ blogs }: { blogs: any[] }) {
                 <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
-                      <User className="h-3.5 w-3.5 shrink-0" />
+                      <User
+                        className="h-3.5 w-3.5 shrink-0"
+                        aria-hidden="true"
+                      />
                       <span className="truncate max-w-[100px]">
                         {blog.author}
                       </span>
                     </span>
                     {blog.created && (
                       <span className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 hrink-0" />
-                        <span className="whitespace-nowrap">
+                        <Calendar
+                          className="h-3.5 w-3.5 hrink-0"
+                          aria-hidden="true"
+                        />
+                        <time
+                          className="whitespace-nowrap"
+                          dateTime={new Date(blog.created).toISOString()}
+                        >
                           {formatDate(new Date(blog.created))}
-                        </span>
+                        </time>
                       </span>
                     )}
                   </div>
@@ -108,7 +119,10 @@ export default function Blog({ blogs }: { blogs: any[] }) {
                     aria-label={`Read more about ${blog.title}`}
                   >
                     <span className="hidden sm:inline">Read</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover/arrow:translate-x-0.5" />
+                    <ArrowRight
+                      className="h-4 w-4 transition-transform group-hover/arrow:translate-x-0.5"
+                      aria-hidden="true"
+                    />
                   </Link>
                 </div>
               </div>
@@ -127,9 +141,10 @@ export default function Blog({ blogs }: { blogs: any[] }) {
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-sm hover:shadow-md"
+            aria-label="View all blog articles"
           >
             View All Articles
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </motion.div>
       </div>

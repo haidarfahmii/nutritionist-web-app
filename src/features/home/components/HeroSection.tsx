@@ -26,7 +26,8 @@ export default function Hero() {
             height={830}
             className="w-full h-auto rounded-br-[50px] object-cover"
             priority
-            sizes="(max-width: 1024px) 100vw, 50vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 50vw"
+            loading="eager"
           />
         </motion.div>
 
@@ -67,13 +68,13 @@ export default function Hero() {
             variants={fadeInUp}
             className="flex flex-col sm:flex-row gap-4 pt-4"
           >
-            <Link href="#blog">
+            <Link href="#blog" aria-label="Get started with nutrition coaching">
               <Button className="bg-[#CBEA7B] text-[#234338] hover:bg-[#B8D96D] px-8 h-12 group cursor-pointer">
                 Get Started Today
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link href="/services">
+            <Link href="/services" aria-label="View our subscription services">
               <Button
                 variant="outline"
                 className="border-[#234338] text-[#234338] hover:bg-[#234338] hover:text-white px-8 h-12 cursor-pointer"
@@ -92,17 +93,23 @@ export default function Hero() {
             <div className="flex items-center">
               <Image
                 src="/images/avatar-1.png"
-                alt="Customer 1"
+                alt=""
                 width={50}
                 height={50}
                 className="relative object-cover rounded-full border-2 border-white"
+                quality={80}
+                loading="lazy"
+                aria-hidden="true"
               />
               <Image
                 src="/images/avatar-2.png"
-                alt="Customer 2"
+                alt=""
                 width={50}
                 height={50}
                 className="relative object-cover rounded-full border-2 border-white -ml-5"
+                quality={80}
+                loading="lazy"
+                aria-hidden="true"
               />
               <Image
                 src="/images/avatar-3.png"
@@ -110,6 +117,9 @@ export default function Hero() {
                 width={50}
                 height={50}
                 className="relative object-cover rounded-full border-2 border-white -ml-5"
+                quality={80}
+                loading="lazy"
+                aria-hidden="true"
               />
             </div>
             <div>

@@ -54,15 +54,23 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-sidebar text-sidebar-foreground ">
-      <nav className="container mx-auto flex items-center justify-between px-4 py-4 lg:px-8">
+      <nav
+        className="container mx-auto flex items-center justify-between px-4 py-4 lg:px-8"
+        aria-label="Main navigation"
+      >
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
+        <Link
+          href="/"
+          className="flex items-center space-x-2"
+          aria-label="Nutritionist home"
+        >
           <Image
             src="/icons/logo.svg"
             alt="Logo"
             width={45}
             height={45}
             className="h-9 w-9 lg:h-11 lg:w-11"
+            aria-hidden="true"
           />
           <span className="text-xl lg:text-2xl font-bold">Nutritionist</span>
         </Link>
@@ -78,6 +86,7 @@ export default function Header() {
                   ? "text-primary"
                   : "text-sidebar-foreground/80"
               }`}
+              aria-current={pathname === item.href ? "page" : undefined}
             >
               {item.name}
             </Link>
@@ -92,6 +101,7 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   className="relative h-10 w-10 rounded-full"
+                  aria-label={`User menu for ${user.name}`}
                 >
                   <Avatar className="h-10 w-10 cursor-pointer">
                     <AvatarFallback className="bg-primary text-primary-foreground">
@@ -113,7 +123,7 @@ export default function Header() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem disabled className="cursor-default">
-                  <Shield className="mr-2 h-4 w-4" />
+                  <Shield className="mr-2 h-4 w-4" aria-hidden="true" />
                   <span className="capitalize">
                     Role: {user.role || "user"}
                   </span>
@@ -123,7 +133,7 @@ export default function Header() {
                   onClick={handleLogout}
                   className="cursor-pointer"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
                   <span>Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -140,21 +150,29 @@ export default function Header() {
         </div>
 
         {/* Mobile menu button */}
-        <button
+        <Button
+          variant="ghost"
           className="md:hidden"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-menu"
         >
           {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
+            <X className="h-6 w-6" aria-hidden="true" />
           ) : (
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6" aria-hidden="true" />
           )}
-        </button>
+        </Button>
       </nav>
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t">
+        <div
+          className="md:hidden border-t"
+          role="navigation"
+          aria-label="Mobile navigation"
+        >
           <div className="container mx-auto px-4 py-4 space-y-4">
             {navigation.map((item) => (
               <Link
@@ -166,6 +184,7 @@ export default function Header() {
                     ? "text-primary"
                     : "text-sidebar-foreground/80"
                 }`}
+                aria-current={pathname === item.href ? "page" : undefined}
               >
                 {item.name}
               </Link>
@@ -185,7 +204,7 @@ export default function Header() {
                     variant="default"
                     className="w-full"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
+                    <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
                     Logout
                   </Button>
                 </>
