@@ -22,14 +22,21 @@ export async function POST(request: NextRequest) {
       name,
       email,
       password,
-      passwordConfirm: password,
       role: "user",
     });
+
+    // Filter response
+    const safeUserData = {
+      objectId: user.objectId,
+      name: user.name,
+      email: user.email,
+      role: user.role || "user",
+    };
 
     return NextResponse.json({
       success: true,
       message: "User created successfully",
-      data: user,
+      data: safeUserData,
     });
   } catch (error: any) {
     return NextResponse.json(

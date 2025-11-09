@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Backendless from "@/utils/backendless";
+import { validateAuth, requireAdmin } from "@/lib/auth-middleware";
 
 type RouteContext = {
   params: Promise<{
@@ -9,6 +10,39 @@ type RouteContext = {
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
+    // validate auth
+    const authResult = await validateAuth(request);
+
+    if (!authResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: authResult.error,
+          data: null,
+        },
+        {
+          status: authResult.status,
+        }
+      );
+    }
+
+    // validate admin role
+    const adminCheck = requireAdmin(authResult.user);
+
+    if (!adminCheck.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: adminCheck.error,
+          data: null,
+        },
+        {
+          status: adminCheck.status,
+        }
+      );
+    }
+
+    // validate request body
     const { objectId } = await context.params;
     const { title, image, author, category, description, content } =
       await request.json();
@@ -18,9 +52,26 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         {
           success: false,
           message: "All fields are required",
+          data: null,
         },
         {
           status: 400,
+        }
+      );
+    }
+
+    // verify blog exist
+    const existingBlog = await Backendless.Data.of("Blogs").findById(objectId);
+
+    if (!existingBlog) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Blog not found",
+          data: null,
+        },
+        {
+          status: 404,
         }
       );
     }
@@ -36,12 +87,18 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       content,
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Blog has been updated successfully",
-      data: updatedBlog,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Blog has been updated successfully",
+        data: updatedBlog,
+      },
+      {
+        status: 200,
+      }
+    );
   } catch (error: any) {
+    console.error("Update blog error: ", error);
     return NextResponse.json(
       {
         success: false,
