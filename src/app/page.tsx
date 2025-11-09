@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     locale: "id_ID",
     images: [
       {
-        url: `${siteUrl}/og-image-home.jpg`,
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: "Nutritionist - Professional Nutrition Services",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
       "Professional Nutritionist Services | Personalized Diet & Meal Plans",
     description:
       "Transform your health with expert nutrition coaching. Get personalized meal plans from certified nutritionists.",
-    images: [`${siteUrl}/og-image-home.jpg`],
+    images: [`${siteUrl}/og-image.png`],
     creator: "@nutritionist",
   },
   alternates: {

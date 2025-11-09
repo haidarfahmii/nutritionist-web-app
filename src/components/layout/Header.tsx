@@ -53,7 +53,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-sidebar text-sidebar-foreground ">
+    <header className="sticky top-0 z-50 w-full bg-sidebar/40 text-sidebar-foreground backdrop-blur-sm md:border-b md:bg-sidebar md:backdrop-blur-none ">
       <nav
         className="container mx-auto flex items-center justify-between px-4 py-4 lg:px-8"
         aria-label="Main navigation"
@@ -81,7 +81,7 @@ export default function Header() {
             <Link
               key={item.name}
               href={item.href}
-              className={`transition-colors hover:text-primary ${
+              className={`transition-colors hover:text-primary flex items-center ${
                 pathname === item.href
                   ? "text-primary"
                   : "text-sidebar-foreground/80"
@@ -169,11 +169,11 @@ export default function Header() {
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <div
-          className="md:hidden border-t"
+          className="md:hidden border-t bg-sidebar/20 text-sidebar-foreground backdrop-blur-sm"
           role="navigation"
           aria-label="Mobile navigation"
         >
-          <div className="container mx-auto px-4 py-4 space-y-4">
+          <div className="container mx-auto px-4 py-4 space-y-4 ">
             {navigation.map((item) => (
               <Link
                 key={item.name}

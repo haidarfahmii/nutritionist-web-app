@@ -199,7 +199,7 @@ export default function Testimonials() {
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
-                    className={`h-2 rounded-full transition-all ${
+                    className={`min-w-0 min-h-0 p-0 h-2 rounded-full transition-all ${
                       index === currentIndex
                         ? "w-8 bg-primary"
                         : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"

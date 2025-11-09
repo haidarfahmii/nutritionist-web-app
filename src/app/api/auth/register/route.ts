@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import backendless from "@/utils/backendless";
+import Backendless from "@/utils/backendless";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +18,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Register user
-    const user = await backendless.UserService.register({
+    const user = await Backendless.UserService.register({
       name,
       email,
       password,
       passwordConfirm: password,
+      role: "user",
     });
 
     return NextResponse.json({

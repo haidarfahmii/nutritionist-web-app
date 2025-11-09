@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Backendless from "@/utils/backendless";
 import { Blog } from "@/lib/types";
+import { BlogActions } from "@/features/blog/components/BlogActions";
 
 // Force dynamic rendering untuk mencegah static generation issues
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export const revalidate = 0;
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
 
-// Helper function to calculate reading time
+// function to calculate reading time
 function calculateReadingTime(content: string): number {
   const wordsPerMinute = 200;
   const words = content.trim().split(/\s+/).length;
@@ -131,6 +132,7 @@ export default async function page({ params }: PageProps) {
                 Back to Blog
               </Button>
             </Link>
+            <BlogActions blog={blog} />
           </nav>
 
           {/* Featured Image */}
@@ -142,6 +144,7 @@ export default async function page({ params }: PageProps) {
               priority
               sizes="(max-width: 896px) 100vw, 896px"
               className="object-cover"
+              unoptimized={true}
             />
           </div>
 

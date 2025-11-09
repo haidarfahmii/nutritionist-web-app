@@ -138,6 +138,7 @@ export function FormCreateBlog() {
                     width={400}
                     height={400}
                     className="w-full h-48 object-cover rounded-lg"
+                    unoptimized={true}
                   />
                 </div>
               )}
@@ -248,7 +249,7 @@ export function FormCreateBlog() {
           <DialogHeader>
             <DialogTitle>Preview</DialogTitle>
           </DialogHeader>
-          <div className="space-y-6">
+          <div className="space-y-6 mt-2">
             {formik.values.image && (
               <Image
                 src={formik.values.image}
@@ -256,9 +257,12 @@ export function FormCreateBlog() {
                 width={400}
                 height={400}
                 className="w-full h-64 object-cover rounded-lg"
+                unoptimized={true}
               />
             )}
-            {formik.values.title && <h2>{formik.values.title}</h2>}
+            {formik.values.title && (
+              <h2 className="font-semibold">{formik.values.title}</h2>
+            )}
             <div className="flex gap-4 text-sm text-muted-foreground">
               {formik.values.author && <span>By {formik.values.author}</span>}
               {formik.values.category && (

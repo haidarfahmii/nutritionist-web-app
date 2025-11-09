@@ -58,6 +58,7 @@ export default function Blog({ blogs }: { blogs: any[] }) {
                     quality={80}
                     loading={index < 2 ? "eager" : "lazy"}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    unoptimized={true}
                   />
                 </div>
               </Link>

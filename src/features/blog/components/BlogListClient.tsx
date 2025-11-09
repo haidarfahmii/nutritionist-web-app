@@ -3,10 +3,11 @@
 import { BlogCard } from "./BlogCard";
 import { BlogFilters } from "./BlogFilters";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import useAuthStore from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
 import { useBlogFilters } from "../hooks/useBlogFilters";
+import { usePagination } from "../hooks/usePagination";
 
 interface Blog {
   objectId?: string;
@@ -24,6 +25,8 @@ interface BlogListClientProps {
   blogs: Blog[];
 }
 
+const BLOGS_PER_PAGE = 9;
+
 export function BlogListClient({ blogs }: BlogListClientProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
@@ -36,6 +39,17 @@ export function BlogListClient({ blogs }: BlogListClientProps) {
     filteredBlogs,
   } = useBlogFilters(blogs);
 
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    goToPage,
+    nextPage,
+    prevPage,
+    canGoNext,
+    canGoPrev,
+  } = usePagination(filteredBlogs, BLOGS_PER_PAGE);
+
   const handleCreateClick = () => {
     if (isAuthenticated) {
       router.push("/blog/create");
@@ -45,9 +59,9 @@ export function BlogListClient({ blogs }: BlogListClientProps) {
   };
 
   return (
-    <section id="blogs" className="py-20 px-4">
+    <section id="blogs" className="py-10 px-4">
       <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-8 fade-in">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8 fade-in">
           <div>
             <h2 className="mb-2 text-2xl lg:text-3xl font-bold">
               Blog & Articles
@@ -78,20 +92,110 @@ export function BlogListClient({ blogs }: BlogListClientProps) {
         </div>
 
         {filteredBlogs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in-delay-2">
-            {filteredBlogs.map((blog) => (
-              <BlogCard
-                key={blog.objectId || blog.slug}
-                slug={blog.slug}
-                title={blog.title}
-                image={blog.image}
-                author={blog.author}
-                description={blog.description}
-                category={blog.category}
-                created={blog.created}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in-delay-2">
+              {paginatedData.map((blog) => (
+                <BlogCard
+                  key={blog.objectId || blog.slug}
+                  slug={blog.slug}
+                  title={blog.title}
+                  image={blog.image}
+                  author={blog.author}
+                  description={blog.description}
+                  category={blog.category}
+                  created={blog.created}
+                />
+              ))}
+            </div>
+
+            {/* pagination control */}
+            {totalPages > 1 && (
+              <div className="flex flex-col items-center gap-4 mt-12">
+                {/* Page Info */}
+                <p className="text-sm text-muted-foreground">
+                  Showing {(currentPage - 1) * BLOGS_PER_PAGE + 1} to{" "}
+                  {Math.min(currentPage * BLOGS_PER_PAGE, filteredBlogs.length)}{" "}
+                  of {filteredBlogs.length} articles
+                </p>
+
+                {/* Navigation Buttons */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={prevPage}
+                    disabled={!canGoPrev}
+                    className="h-10 w-10"
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => {
+                        // Show first page, last page, current page, and pages around current
+                        const showPage =
+                          page === 1 ||
+                          page === totalPages ||
+                          Math.abs(page - currentPage) <= 1;
+
+                        // Show ellipsis
+                        const showEllipsisBefore =
+                          page === currentPage - 2 && currentPage > 3;
+                        const showEllipsisAfter =
+                          page === currentPage + 2 &&
+                          currentPage < totalPages - 2;
+
+                        if (showEllipsisBefore || showEllipsisAfter) {
+                          return (
+                            <span
+                              key={page}
+                              className="px-2 text-muted-foreground"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+
+                        if (!showPage) return null;
+
+                        return (
+                          <Button
+                            key={page}
+                            variant={
+                              currentPage === page ? "default" : "outline"
+                            }
+                            size="icon"
+                            onClick={() => goToPage(page)}
+                            className="h-10 w-10"
+                            aria-label={`Go to page ${page}`}
+                            aria-current={
+                              currentPage === page ? "page" : undefined
+                            }
+                          >
+                            {page}
+                          </Button>
+                        );
+                      }
+                    )}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={nextPage}
+                    disabled={!canGoNext}
+                    className="h-10 w-10"
+                    aria-label="Next page"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-12">
             <p className="text-muted-foreground">

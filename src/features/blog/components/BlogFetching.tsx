@@ -3,18 +3,16 @@ import { Blog } from "@/lib/types";
 
 async function getBlogs(): Promise<Blog[]> {
   try {
-    // const baseUrl = process.env.API_BASE_URL || "http://localhost:3000";
-    // const response = await fetch(`${baseUrl}/api/blog`, {
-    //   cache: "no-store",
-    // });
+    // fetch all blog without pagination limit
+    const queryBuilder = Backendless.DataQueryBuilder.create();
+    queryBuilder.setSortBy(["created desc"]);
+    queryBuilder.setPageSize(100);
 
-    // const data = await response.json();
-    // return data?.data || [];
-    const response = await Backendless.Data.of("Blogs").find<Blog>({
-      sortBy: ["created desc"],
-    });
+    const response = await Backendless.Data.of("Blogs").find<Blog>(
+      queryBuilder
+    );
 
-    // Validate response
+    // validate response
     if (!Array.isArray(response)) {
       console.warn("⚠️ Backendless returned non-array:", typeof response);
       return [];

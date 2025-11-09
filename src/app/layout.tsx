@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Urbanist } from "next/font/google";
 import "./globals.css";
 import HeaderProvider from "@/providers/HeaderProvider";
@@ -13,10 +13,71 @@ const urbanist = Urbanist({
   fallback: ["system-ui", "arial"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Nutritionist - Personalized Nutrition Coaching",
+  title: {
+    default: "Nutritionist - Personalized Nutrition Coaching",
+    template: "%s | Nutritionist",
+  },
   description: "Transform your health with personalized nutrition coaching.",
-  viewport: "width=device-width, initial-scale=1",
+  metadataBase: new URL(siteUrl),
+  keywords: [
+    "nutritionist",
+    "personalized diet plan",
+    "nutrition coaching",
+    "meal planning",
+    "weight loss",
+    "healthy eating",
+    "certified nutritionist",
+    "diet consultation",
+    "wellness",
+  ],
+  authors: [{ name: "Nutritionist Team", url: `${siteUrl}/team` }],
+  creator: "Nutritionist",
+  openGraph: {
+    title: "Nutritionist - Personalized Nutrition Coaching",
+    description: "Transform your health with expert nutrition coaching.",
+    url: siteUrl,
+    siteName: "Nutritionist",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Nutritionist - Professional Nutrition Services",
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nutritionist - Personalized Nutrition Coaching",
+    description: "Transform your health with expert nutrition coaching.",
+    images: ["/og-image.png"],
+    creator: "@nutritionist",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
   themeColor: "#CBEA7B",
 };
 

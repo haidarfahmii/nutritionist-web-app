@@ -15,6 +15,7 @@ interface UseAuthStore {
   logout: () => void;
   setUser: (user: User) => void;
   isAdmin: () => boolean;
+  canModerate: () => boolean;
 }
 
 const useAuthStore = create<UseAuthStore>()(
@@ -26,6 +27,10 @@ const useAuthStore = create<UseAuthStore>()(
       logout: () => set({ user: null, isAuthenticated: false }),
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       isAdmin() {
+        const state = get();
+        return state.user?.role === "admin";
+      },
+      canModerate() {
         const state = get();
         return state.user?.role === "admin";
       },
