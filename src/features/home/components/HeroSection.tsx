@@ -97,7 +97,7 @@ export default function Hero() {
                 width={50}
                 height={50}
                 className="relative object-cover rounded-full border-2 border-white"
-                quality={80}
+                quality={75}
                 loading="lazy"
                 aria-hidden="true"
               />
@@ -107,7 +107,7 @@ export default function Hero() {
                 width={50}
                 height={50}
                 className="relative object-cover rounded-full border-2 border-white -ml-5"
-                quality={80}
+                quality={75}
                 loading="lazy"
                 aria-hidden="true"
               />
@@ -117,7 +117,7 @@ export default function Hero() {
                 width={50}
                 height={50}
                 className="relative object-cover rounded-full border-2 border-white -ml-5"
-                quality={80}
+                quality={75}
                 loading="lazy"
                 aria-hidden="true"
               />

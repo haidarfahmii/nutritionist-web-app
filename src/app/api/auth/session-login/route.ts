@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Backendless from "@/utils/backendless";
 
+interface BackendlessUser {
+  objectId: string;
+  name: string;
+  email: string;
+  role?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { objectId } = await request.json();
@@ -19,7 +26,9 @@ export async function POST(request: NextRequest) {
     }
 
     // fetch user
-    const user = await Backendless.Data.of("Users").findById(objectId);
+    const user = await Backendless.Data.of("Users").findById<BackendlessUser>(
+      objectId
+    );
 
     if (!user) {
       return NextResponse.json(

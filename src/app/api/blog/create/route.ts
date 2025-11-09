@@ -50,8 +50,7 @@ export async function POST(request: NextRequest) {
       category,
       description,
       content,
-      ownerId: authResult.user.objectId, // ✅ Track owner
-      ownerEmail: authResult.user.email,
+      ownerId: authResult.user.objectId, // Track owner
     });
 
     return NextResponse.json(

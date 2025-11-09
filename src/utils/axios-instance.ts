@@ -6,7 +6,7 @@ export const axiosInstance = axios.create({
 });
 
 // interceptor: auto-attach authorization header
-axiosInstance.interceptors.response.use(
+axiosInstance.interceptors.request.use(
   (config) => {
     // GET session from store
     const session = useAuthStore.getState().session;
