@@ -25,12 +25,15 @@ interface BlogActionsProps {
 
 export function BlogActions({ blog }: BlogActionsProps) {
   const router = useRouter();
-  const { isAuthenticated, isAdmin } = useAuthStore();
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { user } = useAuthStore();
+  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  // Hanya admin yang bisa edit/delete
-  if (!isAuthenticated || !isAdmin()) {
+  // check user = admin
+  const isAdmin = user?.role === "admin";
+
+  // don't show button if not admin
+  if (!isAdmin) {
     return null;
   }
 
@@ -41,18 +44,30 @@ export function BlogActions({ blog }: BlogActionsProps) {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
+
       const response = await axiosInstance.delete(
         `/api/blog/delete/${blog.objectId}`
       );
 
       if (response.data.success) {
-        toast.success("Blog berhasil dihapus!");
+        toast.success("Blog has been deleted!");
         router.push("/blog");
+        router.refresh();
       } else {
-        toast.error(response.data.message || "Gagal menghapus blog");
+        toast.error(response.data.message || "Failed to delete blog.");
       }
     } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan saat menghapus blog");
+      // handle specific error
+      if (error.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (error.response?.status === 403) {
+        toast.error("You don't have permission to delete this blog.");
+      } else {
+        toast.error(
+          error.response?.data?.message ||
+            "An error occurred while deleting the blog."
+        );
+      }
     } finally {
       setIsDeleting(false);
       setShowDeleteDialog(false);

@@ -27,14 +27,25 @@ export const useFormLogin = () => {
         const response = await axiosInstance.post("/api/auth/login", values);
 
         if (response.data.success) {
-          login(response.data.data);
-          toast.success("Login berhasil!");
+          const userData = {
+            objectId: response.data.data.objectId,
+            name: response.data.data.name,
+            email: response.data.data.email,
+            role: response.data.data.role || "user",
+          };
+
+          login(userData);
+          toast.success("Login success!");
           router.push(redirectTo);
         } else {
-          toast.error(response.data.message || "Login gagal");
+          toast.error(response.data.message || "Login failed!");
         }
       } catch (error: any) {
-        toast.error(error.message || "Terjadi kesalahan saat login");
+        toast.error(
+          error.response?.data?.message ||
+            error.message ||
+            "An error occurred during login."
+        );
       } finally {
         setSubmitting(false);
       }

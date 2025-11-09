@@ -143,7 +143,7 @@ export default function TeamGrid({ members }: TeamGridProps) {
                 {/* Content */}
                 <CardContent className="p-5 space-y-3">
                   <div className="space-y-1">
-                    <h3 className="text-lg font-semibold leading-tight line-clamp-1">
+                    <h3 className="mb-2 text-lg font-semibold leading-tight line-clamp-1">
                       {member.name}
                     </h3>
                     <Badge variant="secondary" className="font-normal">

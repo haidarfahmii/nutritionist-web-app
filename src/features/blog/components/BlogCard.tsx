@@ -68,7 +68,10 @@ export function BlogCard({
           {description}
         </p>
         <Link href={`/blog/${slug}`}>
-          <Button variant="link" className="p-0 h-auto cursor-pointer">
+          <Button
+            variant="link"
+            className="p-0 h-auto cursor-pointer text-dark-green"
+          >
             Read More →
           </Button>
         </Link>

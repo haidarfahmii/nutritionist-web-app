@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Backendless from "@/utils/backendless";
 
+interface BackendlessUser {
+  objectId: string;
+  name: string;
+  email: string;
+  role?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { name, email, password } = await request.json();
@@ -11,36 +18,48 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "All fields are required",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    // Register user
-    const user = await Backendless.UserService.register({
+    // terima response sebagai any dulu
+    const result = await Backendless.UserService.register({
       name,
       email,
       password,
-      passwordConfirm: password,
       role: "user",
     });
+
+    // validasi response
+    if (!result || typeof result !== "object" || !("objectId" in result)) {
+      console.error("Invalid Backendless response:", result);
+      throw new Error("Invalid response from authentication service");
+    }
+
+    const registeredUser = result as BackendlessUser;
+
+    // Filter response
+    const safeUserData = {
+      objectId: registeredUser.objectId,
+      name: registeredUser.name,
+      email: registeredUser.email,
+      role: registeredUser.role || "user",
+    };
 
     return NextResponse.json({
       success: true,
       message: "User created successfully",
-      data: user,
+      data: safeUserData,
     });
   } catch (error: any) {
+    console.error("Registration error:", error);
     return NextResponse.json(
       {
         success: false,
         message: error.message,
         data: null,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Urbanist } from "next/font/google";
 import "./globals.css";
 import HeaderProvider from "@/providers/HeaderProvider";
+import AuthProvider from "@/providers/AuthProvider";
 import { ToastContainer } from "react-toastify";
 
 const urbanist = Urbanist({
@@ -106,7 +107,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${urbanist.variable} antialiased`}>
-        <HeaderProvider>{children}</HeaderProvider>
+        <AuthProvider>
+          <HeaderProvider>{children}</HeaderProvider>
+        </AuthProvider>
         <ToastContainer
           position="top-right"
           autoClose={3000}
