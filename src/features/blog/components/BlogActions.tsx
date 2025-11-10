@@ -25,15 +25,17 @@ interface BlogActionsProps {
 
 export function BlogActions({ blog }: BlogActionsProps) {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user, isAdmin } = useAuthStore();
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  // check user = admin
-  const isAdmin = user?.role === "admin";
+  // check if user bisa edit/delete post:
+  // 1. User adalah admin, atau
+  // 2. User adalah pemilik post (objectId sama dengan ownerId di blog)
+  const canMoodify = isAdmin() || user?.objectId === blog.ownerId;
 
-  // don't show button if not admin
-  if (!isAdmin) {
+  // don't show button if user doesn't have access
+  if (!canMoodify) {
     return null;
   }
 

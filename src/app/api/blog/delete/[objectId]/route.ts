@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Backendless from "@/utils/backendless";
-import { validateAuth, requireAdmin } from "@/lib/auth-middleware";
+import { validateAuth, requireOwnership } from "@/lib/auth-middleware";
 
 type RouteContext = {
   params: Promise<{
@@ -26,24 +26,28 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // validate admin role
-    const adminCheck = requireAdmin(authResult.user);
+    const { objectId } = await context.params;
 
-    if (!adminCheck.success) {
+    // validate admin role
+    const ownershipCheck = await requireOwnership(
+      authResult.user,
+      objectId,
+      "Blogs",
+      "ownerId"
+    );
+
+    if (!ownershipCheck.success) {
       return NextResponse.json(
         {
           success: false,
-          message: adminCheck.error,
+          message: ownershipCheck.error,
           data: null,
         },
         {
-          status: adminCheck.status,
+          status: ownershipCheck.status,
         }
       );
     }
-
-    // proceed with delete
-    const { objectId } = await context.params;
 
     // verify blog exist before delete
     const blog = await Backendless.Data.of("Blogs").findById(objectId);
@@ -61,6 +65,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       );
     }
 
+    // delete blog
     await Backendless.Data.of("Blogs").remove({ objectId });
 
     return NextResponse.json(
