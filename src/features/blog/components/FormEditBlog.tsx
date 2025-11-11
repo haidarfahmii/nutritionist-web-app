@@ -32,6 +32,7 @@ import type { Blog } from "@/lib/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/stores/useAuthStore";
+import { toast } from "react-toastify";
 
 const categories = [
   "Diet & Nutrition",
@@ -49,19 +50,34 @@ interface FormEditBlogProps {
 
 export function FormEditBlog({ blog }: FormEditBlogProps) {
   const router = useRouter();
-  const { isAuthenticated, isAdmin } = useAuthStore();
+  const { isAuthenticated, isAdmin, user } = useAuthStore();
   const formik = useFormEditBlog(blog);
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Check authentication and authorization
+  // Check authorization
   useEffect(() => {
-    if (!isAuthenticated || !isAdmin()) {
+    if (!isAuthenticated) {
+      toast.error("Please login to edit blog");
+      router.push("/login?redirect=/blog");
+      return;
+    }
+
+    // Check permission: admin ATAU owner
+    const canEdit = isAdmin() || user?.objectId === blog.ownerId;
+
+    if (!canEdit) {
+      toast.error("You don't have permission to edit this blog");
       router.push("/blog");
     }
-  }, [isAuthenticated, isAdmin, router]);
+  }, [isAuthenticated, isAdmin, user, blog.ownerId, router]);
 
-  if (!isAuthenticated || !isAdmin()) {
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  const canEdit = isAdmin() || user?.objectId === blog.ownerId;
+  if (!canEdit) {
     return null;
   }
 

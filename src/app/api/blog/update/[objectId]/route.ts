@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Backendless from "@/utils/backendless";
-import { validateAuth, requireAdmin } from "@/lib/auth-middleware";
+import { validateAuth, requireOwnership } from "@/lib/auth-middleware";
 
 type RouteContext = {
   params: Promise<{
@@ -26,24 +26,30 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // validate admin role
-    const adminCheck = requireAdmin(authResult.user);
+    const { objectId } = await context.params;
 
-    if (!adminCheck.success) {
+    // cek ownership: admin bisa edit semua sedangkan user cuman bisa edit miliknya
+    const ownershipCheck = await requireOwnership(
+      authResult.user,
+      objectId,
+      "Blogs", // nama table
+      "ownerId" // nama kolom owner
+    );
+
+    if (!ownershipCheck.success) {
       return NextResponse.json(
         {
           success: false,
-          message: adminCheck.error,
+          message: ownershipCheck.error,
           data: null,
         },
         {
-          status: adminCheck.status,
+          status: ownershipCheck.status,
         }
       );
     }
 
     // validate request body
-    const { objectId } = await context.params;
     const { title, image, author, category, description, content } =
       await request.json();
 

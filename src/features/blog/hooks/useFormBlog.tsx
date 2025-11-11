@@ -4,9 +4,8 @@ import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { blogValidationSchema } from "../schemas/blogValidationSchema";
 import { toast } from "react-toastify";
-// import { axiosInstance } from "@/utils/axios-instance";
+import { axiosInstance } from "@/utils/axios-instance";
 import Backendless from "@/utils/backendless";
-import { generateSlug } from "@/lib/utils";
 
 interface BlogFormValues {
   title: string;
@@ -60,10 +59,10 @@ export const useFormBlog = () => {
         }
 
         // Generate slug dari title
-        const slug = generateSlug(values.title);
+        // const slug = generateSlug(values.title);
 
         const blogData = {
-          slug,
+          // slug,
           title: values.title,
           image: imageUrl,
           author: values.author,
@@ -72,25 +71,49 @@ export const useFormBlog = () => {
           content: values.content,
         };
 
-        const savedBlog = await Backendless.Data.of("Blogs").save(blogData);
+        const response = await axiosInstance.post("/api/blog/create", blogData);
 
-        if (savedBlog) {
-          toast.success("Blog berhasil dipublikasikan!");
+        if (response.data.success) {
+          toast.success("Blog has been created!");
 
-          // delay kecil sebelum redirect untuk memastikan data tersimpan
+          // delay 1 detik sebelum redirect
           await new Promise((resolve) => setTimeout(resolve, 1000));
 
-          // Redirect ke halaman blog detail
-          router.push(`/blog/${slug}`);
-
-          // Refresh router untuk memuat ulang data
+          // redirect ke halaman blog detail
+          router.push(`/blog/${response.data.data.slug}`);
           router.refresh();
         } else {
-          toast.error("Gagal membuat blog");
+          toast.error(response.data.message || "Failed to create blog.");
         }
+        // const savedBlog = await Backendless.Data.of("Blogs").save(blogData);
+
+        // if (savedBlog) {
+        //   toast.success("Blog berhasil dipublikasikan!");
+
+        //   // delay kecil sebelum redirect untuk memastikan data tersimpan
+        //   await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        //   // Redirect ke halaman blog detail
+        //   router.push(`/blog/${slug}`);
+
+        //   // Refresh router untuk memuat ulang data
+        //   router.refresh();
+        // } else {
+        //   toast.error("Gagal membuat blog");
+        // }
       } catch (error: any) {
         console.error("Error creating blog:", error);
-        toast.error(error.message || "Terjadi kesalahan saat membuat blog");
+
+        // handle specific errors
+        if (error.response?.status === 401) {
+          toast.error("Session expired. Please login again.");
+          router.push("/login?redirect=/blog/create");
+        } else {
+          toast.error(
+            error.response?.data?.message ||
+              "An error occurred while creating the blog."
+          );
+        }
       } finally {
         setSubmitting(false);
       }

@@ -53,6 +53,8 @@ export async function POST(request: NextRequest) {
       ownerId: authResult.user.objectId, // Track owner
     });
 
+    console.log("✅ Blog created with ownerId:", blog.ownerId);
+
     return NextResponse.json(
       {
         success: true,

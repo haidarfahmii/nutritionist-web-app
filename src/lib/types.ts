@@ -8,6 +8,7 @@ export interface Blog {
   category: string;
   description: string;
   content: string;
+  ownerId?: string;
   created?: number;
   updated?: number;
 }
