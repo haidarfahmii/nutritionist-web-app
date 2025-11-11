@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { BlogListClient } from "@/features/blog/components/BlogListClient";
+import { BlogListWrapper } from "@/features/blog/components/BlogListWrapper";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://nutritionistku.vercel.app";
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 export default async function BlogPage() {
   return (
     <main role="main">
-      <BlogListClient />
+      <BlogListWrapper />
     </main>
   );
 }
