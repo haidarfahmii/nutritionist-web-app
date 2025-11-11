@@ -223,7 +223,7 @@ export default function Header() {
                         setMobileMenuOpen(false);
                       }}
                       variant="outline"
-                      className="w-full justify-start"
+                      className="w-full bg-accent text-accent-foreground"
                     >
                       <Users className="mr-2 h-4 w-4" aria-hidden="true" />
                       User Management
