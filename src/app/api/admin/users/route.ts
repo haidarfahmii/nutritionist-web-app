@@ -7,6 +7,7 @@ interface BackendlessUser {
   name: string;
   email: string;
   role?: string;
+  status?: string;
   created?: number;
 }
 
@@ -59,6 +60,7 @@ export async function GET(request: NextRequest) {
       name: user.name,
       email: user.email,
       role: user.role || "user",
+      status: user.status || "active",
       created: user.created,
     }));
 
