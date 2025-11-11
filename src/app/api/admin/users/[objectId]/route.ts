@@ -10,9 +10,9 @@ interface BackendlessUser {
 }
 
 type RouteContext = {
-  params: {
+  params: Promise<{
     objectId: string;
-  };
+  }>;
 };
 
 export async function PUT(request: NextRequest, context: RouteContext) {
@@ -49,7 +49,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       );
     }
 
-    const { objectId } = context.params;
+    const { objectId } = await context.params;
 
     // validasi req body
     const { role } = await request.json();
@@ -96,9 +96,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     // verify user exist
-    const existingUser = await Backendless.Data.of("Users").findById<BackendlessUser>(
-      objectId
-    );
+    const existingUser = await Backendless.Data.of(
+      "Users"
+    ).findById<BackendlessUser>(objectId);
 
     if (!existingUser) {
       return NextResponse.json(
@@ -119,9 +119,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       role,
     });
 
-    const updatedUser = await Backendless.Data.of("Users").findById<BackendlessUser>(
-      objectId
-    );
+    const updatedUser = await Backendless.Data.of(
+      "Users"
+    ).findById<BackendlessUser>(objectId);
 
     // return data yang aman
     return NextResponse.json(
