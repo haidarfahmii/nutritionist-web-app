@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, X, LogOut, Shield } from "lucide-react";
+import { Menu, X, LogOut, Shield, Users } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
@@ -28,7 +28,7 @@ const navigation = [
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, isAdmin } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   const handleLogout = () => {
@@ -128,6 +128,21 @@ export default function Header() {
                     Role: {user.role || "user"}
                   </span>
                 </DropdownMenuItem>
+
+                {/* Admin Menu - Hanya tampil jika user adalah admin */}
+                {isAdmin() && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => router.push("/admin/users")}
+                      className="cursor-pointer"
+                    >
+                      <Users className="mr-2 h-4 w-4" aria-hidden="true" />
+                      <span>User Management</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
@@ -199,6 +214,22 @@ export default function Header() {
                       Role: {user.role || "user"}
                     </p>
                   </div>
+
+                  {/* Admin Menu untuk Mobile */}
+                  {isAdmin() && (
+                    <Button
+                      onClick={() => {
+                        router.push("/admin/users");
+                        setMobileMenuOpen(false);
+                      }}
+                      variant="outline"
+                      className="w-full justify-start"
+                    >
+                      <Users className="mr-2 h-4 w-4" aria-hidden="true" />
+                      User Management
+                    </Button>
+                  )}
+
                   <Button
                     onClick={handleLogout}
                     variant="default"
