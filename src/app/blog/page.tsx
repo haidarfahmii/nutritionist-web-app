@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import BlogFetching from "@/features/blog/components/BlogFetching";
 import { BlogListClient } from "@/features/blog/components/BlogListClient";
 
 const siteUrl =
@@ -56,7 +55,7 @@ export const metadata: Metadata = {
 export default async function BlogPage() {
   return (
     <main role="main">
-      <BlogFetching>{(blogs) => <BlogListClient blogs={blogs} />}</BlogFetching>
+      <BlogListClient />
     </main>
   );
 }

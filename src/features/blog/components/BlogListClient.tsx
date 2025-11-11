@@ -1,13 +1,14 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { BlogCard } from "./BlogCard";
 import { BlogFilters } from "./BlogFilters";
 import { Button } from "@/components/ui/button";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import useAuthStore from "@/stores/useAuthStore";
-import { useRouter } from "next/navigation";
-import { useBlogFilters } from "../hooks/useBlogFilters";
-import { usePagination } from "../hooks/usePagination";
+import { axiosInstance } from "@/utils/axios-instance";
+import { toast } from "react-toastify";
 
 interface Blog {
   objectId?: string;
@@ -21,34 +22,134 @@ interface Blog {
   created?: number;
 }
 
-interface BlogListClientProps {
-  blogs: Blog[];
+interface PaginationInfo {
+  currentPage: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
 const BLOGS_PER_PAGE = 9;
 
-export function BlogListClient({ blogs }: BlogListClientProps) {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
-  const {
-    searchQuery,
-    setSearchQuery,
-    selectedCategory,
-    setSelectedCategory,
-    categories,
-    filteredBlogs,
-  } = useBlogFilters(blogs);
+const BLOG_CATEGORIES = [
+  "Diet & Nutrition",
+  "Weight Loss",
+  "Healthy Recipes",
+  "Fitness & Exercise",
+  "Lifestyle",
+  "Supplements",
+  "Wellness Tips",
+];
 
-  const {
-    currentPage,
-    totalPages,
-    paginatedData,
-    goToPage,
-    nextPage,
-    prevPage,
-    canGoNext,
-    canGoPrev,
-  } = usePagination(filteredBlogs, BLOGS_PER_PAGE);
+export function BlogListClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuthStore();
+
+  // State untuk UI controls
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || "All"
+  );
+  const [currentPage, setCurrentPage] = useState(
+    parseInt(searchParams.get("page") || "1", 10)
+  );
+
+  // State untuk data dari server
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    currentPage: 1,
+    pageSize: BLOGS_PER_PAGE,
+    totalItems: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch data dari server
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Build query parameters
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          pageSize: BLOGS_PER_PAGE.toString(),
+        });
+
+        if (selectedCategory && selectedCategory !== "All") {
+          params.append("category", selectedCategory);
+        }
+
+        if (searchQuery.trim()) {
+          params.append("search", searchQuery.trim());
+        }
+
+        // Fetch dari API route
+        const response = await axiosInstance.get(`/api/blog/list?${params}`);
+
+        if (response.data.success) {
+          setBlogs(response.data.data.blogs);
+          setPagination(response.data.data.pagination);
+        } else {
+          setError(response.data.message || "Failed to load blogs");
+          toast.error(response.data.message || "Failed to load blogs");
+        }
+      } catch (err: any) {
+        console.error("Error fetching blogs:", err);
+        setError(err.message || "An error occurred while loading blogs");
+        toast.error("Failed to load blogs. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, [currentPage, selectedCategory, searchQuery]);
+
+  // Update URL params ketika filter berubah
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (currentPage > 1) {
+      params.set("page", currentPage.toString());
+    }
+
+    if (selectedCategory && selectedCategory !== "All") {
+      params.set("category", selectedCategory);
+    }
+
+    if (searchQuery.trim()) {
+      params.set("search", searchQuery.trim());
+    }
+
+    const newUrl = params.toString() ? `/blog?${params}` : "/blog";
+    router.replace(newUrl, { scroll: false });
+  }, [currentPage, selectedCategory, searchQuery, router]);
+
+  // Handlers untuk filter
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleCreateClick = () => {
     if (isAuthenticated) {
@@ -85,123 +186,158 @@ export function BlogListClient({ blogs }: BlogListClientProps) {
           <BlogFilters
             searchQuery={searchQuery}
             selectedCategory={selectedCategory}
-            categories={categories}
-            onSearchChange={setSearchQuery}
-            onCategoryChange={setSelectedCategory}
+            categories={BLOG_CATEGORIES}
+            onSearchChange={handleSearchChange}
+            onCategoryChange={handleCategoryChange}
           />
         </div>
 
-        {filteredBlogs.length > 0 ? (
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="text-center py-12">
+            <p className="text-destructive mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Try Again
+            </Button>
+          </div>
+        )}
+
+        {/* Content */}
+        {!loading && !error && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in-delay-2">
-              {paginatedData.map((blog) => (
-                <BlogCard
-                  key={blog.objectId || blog.slug}
-                  slug={blog.slug}
-                  title={blog.title}
-                  image={blog.image}
-                  author={blog.author}
-                  description={blog.description}
-                  category={blog.category}
-                  created={blog.created}
-                />
-              ))}
-            </div>
-
-            {/* pagination control */}
-            {totalPages > 1 && (
-              <div className="flex flex-col items-center gap-4 mt-12">
-                {/* Page Info */}
-                <p className="text-sm text-muted-foreground">
-                  Showing {(currentPage - 1) * BLOGS_PER_PAGE + 1} to{" "}
-                  {Math.min(currentPage * BLOGS_PER_PAGE, filteredBlogs.length)}{" "}
-                  of {filteredBlogs.length} articles
-                </p>
-
-                {/* Navigation Buttons */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={prevPage}
-                    disabled={!canGoPrev}
-                    className="h-10 w-10"
-                    aria-label="Previous page"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </Button>
-
-                  {/* Page Numbers */}
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                      (page) => {
-                        // Show first page, last page, current page, and pages around current
-                        const showPage =
-                          page === 1 ||
-                          page === totalPages ||
-                          Math.abs(page - currentPage) <= 1;
-
-                        // Show ellipsis
-                        const showEllipsisBefore =
-                          page === currentPage - 2 && currentPage > 3;
-                        const showEllipsisAfter =
-                          page === currentPage + 2 &&
-                          currentPage < totalPages - 2;
-
-                        if (showEllipsisBefore || showEllipsisAfter) {
-                          return (
-                            <span
-                              key={page}
-                              className="px-2 text-muted-foreground"
-                            >
-                              ...
-                            </span>
-                          );
-                        }
-
-                        if (!showPage) return null;
-
-                        return (
-                          <Button
-                            key={page}
-                            variant={
-                              currentPage === page ? "default" : "outline"
-                            }
-                            size="icon"
-                            onClick={() => goToPage(page)}
-                            className="h-10 w-10"
-                            aria-label={`Go to page ${page}`}
-                            aria-current={
-                              currentPage === page ? "page" : undefined
-                            }
-                          >
-                            {page}
-                          </Button>
-                        );
-                      }
-                    )}
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={nextPage}
-                    disabled={!canGoNext}
-                    className="h-10 w-10"
-                    aria-label="Next page"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </Button>
+            {blogs.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in-delay-2">
+                  {blogs.map((blog) => (
+                    <BlogCard
+                      key={blog.objectId || blog.slug}
+                      slug={blog.slug}
+                      title={blog.title}
+                      image={blog.image}
+                      author={blog.author}
+                      description={blog.description}
+                      category={blog.category}
+                      created={blog.created}
+                    />
+                  ))}
                 </div>
+
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex flex-col items-center gap-4 mt-12">
+                    {/* Page Info */}
+                    <p className="text-sm text-muted-foreground">
+                      Showing{" "}
+                      {(pagination.currentPage - 1) * pagination.pageSize + 1}{" "}
+                      to{" "}
+                      {Math.min(
+                        pagination.currentPage * pagination.pageSize,
+                        pagination.totalItems
+                      )}{" "}
+                      of {pagination.totalItems} articles
+                    </p>
+
+                    {/* Navigation Buttons */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          handlePageChange(pagination.currentPage - 1)
+                        }
+                        disabled={!pagination.hasPrevPage}
+                        className="h-10 w-10"
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </Button>
+
+                      {/* Page Numbers */}
+                      <div className="flex items-center gap-1">
+                        {Array.from(
+                          { length: pagination.totalPages },
+                          (_, i) => i + 1
+                        ).map((page) => {
+                          const showPage =
+                            page === 1 ||
+                            page === pagination.totalPages ||
+                            Math.abs(page - pagination.currentPage) <= 1;
+
+                          const showEllipsisBefore =
+                            page === pagination.currentPage - 2 &&
+                            pagination.currentPage > 3;
+                          const showEllipsisAfter =
+                            page === pagination.currentPage + 2 &&
+                            pagination.currentPage < pagination.totalPages - 2;
+
+                          if (showEllipsisBefore || showEllipsisAfter) {
+                            return (
+                              <span
+                                key={page}
+                                className="px-2 text-muted-foreground"
+                              >
+                                ...
+                              </span>
+                            );
+                          }
+
+                          if (!showPage) return null;
+
+                          return (
+                            <Button
+                              key={page}
+                              variant={
+                                pagination.currentPage === page
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="icon"
+                              onClick={() => handlePageChange(page)}
+                              className="h-10 w-10"
+                              aria-label={`Go to page ${page}`}
+                              aria-current={
+                                pagination.currentPage === page
+                                  ? "page"
+                                  : undefined
+                              }
+                            >
+                              {page}
+                            </Button>
+                          );
+                        })}
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          handlePageChange(pagination.currentPage + 1)
+                        }
+                        disabled={!pagination.hasNextPage}
+                        className="h-10 w-10"
+                        aria-label="Next page"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">
+                  No blogs found matching your criteria.
+                </p>
               </div>
             )}
           </>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              No blogs found matching your criteria.
-            </p>
-          </div>
         )}
       </div>
     </section>

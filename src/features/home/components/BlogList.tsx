@@ -5,11 +5,59 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn } from "@/lib/animations";
 import { formatDate } from "@/lib/utils";
-import { ArrowRight, Calendar, User } from "lucide-react";
+import { ArrowRight, Calendar, User, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { axiosInstance } from "@/utils/axios-instance";
 
-export default function Blog({ blogs }: { blogs: any[] }) {
-  const displayBlogs = blogs.slice(0, 4);
+interface Blog {
+  objectId?: string;
+  slug: string;
+  title: string;
+  image: string;
+  author: string;
+  description: string;
+  category: string;
+  created?: number;
+}
+
+export default function Blog() {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        setLoading(true);
+        // Fetch 4 blog
+        const response = await axiosInstance.get(
+          "/api/blog/list?page=1&pageSize=4"
+        );
+
+        if (response.data.success) {
+          setBlogs(response.data.data.blogs);
+        }
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
+
+  if (loading) {
+    return (
+      <section id="blog" className="w-full bg-secondary/30 py-20 lg:py-32">
+        <div className="container mx-auto max-w-7xl px-6">
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="blog" className="w-full bg-secondary/30 py-20 lg:py-32">
@@ -34,7 +82,7 @@ export default function Blog({ blogs }: { blogs: any[] }) {
 
         {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 lg:gap-8">
-          {displayBlogs.map((blog, index) => (
+          {blogs.map((blog, index) => (
             <motion.article
               key={blog.objectId || index}
               className="group bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full"

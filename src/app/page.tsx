@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import HeroSection from "@/features/home/components/HeroSection";
-import BlogFetching from "@/features/blog/components/BlogFetching";
 import BlogList from "@/features/home/components/BlogList";
 import Pricing from "@/features/home/components/Pricing";
 import Testimonoials from "@/features/home/components/Testimonials";
@@ -60,19 +59,10 @@ export const metadata: Metadata = {
 export default async function Home() {
   return (
     <main role="main">
-      {/* Hero Section with h1 for SEO */}
       <HeroSection />
-
-      {/* Features Section */}
       <Features />
-
-      {/* Blog Section */}
-      <BlogFetching>{(blogs) => <BlogList blogs={blogs} />}</BlogFetching>
-
-      {/* Testimonials */}
+      <BlogList />
       <Testimonoials />
-
-      {/* Pricing Preview */}
       <Pricing />
     </main>
   );
