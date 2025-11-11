@@ -313,11 +313,20 @@ export default function AdminUsersPage() {
                     } ${isSuspended ? "opacity-60 bg-muted/50" : ""}`}
                   >
                     <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <CardTitle className="text-lg truncate">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap shrink-0">
+                            <CardTitle className="text-lg truncate flex items-center gap-2">
                               {user.name}
+                              <Badge
+                                variant={
+                                  user.role === "admin"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {user.role}
+                              </Badge>
                             </CardTitle>
                             {isCurrentUser && (
                               <Badge variant="outline" className="shrink-0">
@@ -345,15 +354,7 @@ export default function AdminUsersPage() {
                           </CardDescription>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                          <Badge
-                            variant={
-                              user.role === "admin" ? "default" : "secondary"
-                            }
-                          >
-                            {user.role}
-                          </Badge>
-
+                        <div className="flex flex-col sm:flex-row gap-2 shrink-0 w-full md:w-auto space-y-2">
                           {/* Role Selector */}
                           <Select
                             value={user.role}
@@ -364,7 +365,7 @@ export default function AdminUsersPage() {
                               updatingUserId === user.objectId || isCurrentUser
                             }
                           >
-                            <SelectTrigger className="w-[140px]">
+                            <SelectTrigger className="w-full sm:w-[140px]">
                               {updatingUserId === user.objectId ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
                               ) : (
@@ -381,13 +382,13 @@ export default function AdminUsersPage() {
                           {!isCurrentUser && (
                             <Button
                               variant={isSuspended ? "outline" : "destructive"}
-                              size="sm"
                               onClick={() =>
                                 openStatusDialog(
                                   user,
                                   isSuspended ? "activate" : "suspend"
                                 )
                               }
+                              className="w-full sm:w-auto"
                               disabled={suspendingUserId === user.objectId}
                             >
                               {suspendingUserId === user.objectId ? (
